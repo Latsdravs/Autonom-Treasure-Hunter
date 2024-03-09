@@ -3,7 +3,10 @@ package com.example.demo;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
@@ -16,28 +19,47 @@ import java.util.List;
 public class Main extends Application {
     @Override
     public void start(Stage stage) throws IOException {
+
         Group root = new Group();
 
 
+
+        AnchorPane mapAnchor = new AnchorPane();
+        ScrollPane mapScrollO = addMapScroll(root);
+        mapAnchor.getChildren().add(mapScrollO);
+        AnchorPane.setLeftAnchor(mapScrollO, 0.0);
+        AnchorPane.setTopAnchor(mapScrollO, 0.0);
+        AnchorPane.setRightAnchor(mapScrollO, 0.0);
+        AnchorPane.setBottomAnchor(mapScrollO, 0.0);
+        Scene mapScene = new Scene(mapAnchor,600,600);
+        stage.setScene(mapScene);
+        stage.setFullScreen(true);
+        stage.setResizable(false);
+        mapScrollO.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        mapScrollO.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+
+        int grid_x = 32;
+        int grid_y = 32;
+
         int size=64;
-        Scene scene = new Scene(root,600,600, Color.BLACK);
-        ArrayList<Line> lines = new ArrayList<>();
-        for (int i = 0; i < 1001; i++) {
+
+
+        for (int i = 0; i <= grid_x; i++) {
             Line temp = new Line();
             temp.setStartX(i*size);
             temp.setEndX(i*size);
 
             temp.setStartY(0);
-            temp.setEndY(2000);
+            temp.setEndY(size*grid_y);
             temp.setStroke(Color.GAINSBORO);
             temp.setStrokeWidth(2);
             root.getChildren().add(temp);
-            lines.add(temp);
+
         }
-        for (int j = 0; j < 1001; j++) {
+        for (int j = 0; j <= grid_y; j++) {
             Line temp = new Line();
             temp.setStartX(0);
-            temp.setEndX(2000);
+            temp.setEndX(size*grid_x);
 
             temp.setStartY(j*size);
             temp.setEndY(j*size);
@@ -45,17 +67,31 @@ public class Main extends Application {
             temp.setStroke(Color.GAINSBORO);
             temp.setStrokeWidth(2);
             root.getChildren().add(temp);
-            lines.add(temp);
+
         }
-        Line line = new Line();
 
 
-        root.getChildren().add(line);
-        stage.setScene(scene);
+
+
+
+
+        stage.setScene(mapScene);
         stage.show();
     }
 
     public static void main(String[] args) {
         launch();
+    }
+    //Creates an ImageView for the map
+
+
+    //Creates a scrollPane for the map
+    private ScrollPane addMapScroll(Node node)
+    {
+        ScrollPane mapScroll = new ScrollPane();
+
+        mapScroll.setContent(node);
+        mapScroll.setPannable(true);
+        return mapScroll;
     }
 }
