@@ -9,6 +9,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.stage.Stage;
 
@@ -21,6 +22,8 @@ public class Main extends Application {
     public void start(Stage stage) throws IOException {
 
         Group root = new Group();
+
+
 
 
 
@@ -40,32 +43,39 @@ public class Main extends Application {
 
         int grid_x = 32;
         int grid_y = 32;
-
+        int width = 2;
         int size=64;
 
+        Circle ball = new Circle();
+        ball.setCenterX(32+width);
+        ball.setCenterY(32+width);
+        ball.setRadius(32);
+        ball.setStroke(Color.FIREBRICK);
+        ball.setFill(Color.FIREBRICK);
+        root.getChildren().add(ball);
 
         for (int i = 0; i <= grid_x; i++) {
             Line temp = new Line();
-            temp.setStartX(i*size);
-            temp.setEndX(i*size);
+            temp.setStartX(i*(size+width*2));
+            temp.setEndX(i*(size+width*2));
 
             temp.setStartY(0);
-            temp.setEndY(size*grid_y);
+            temp.setEndY((size+width*2)*grid_y);
             temp.setStroke(Color.GAINSBORO);
-            temp.setStrokeWidth(2);
+            temp.setStrokeWidth(width*2);
             root.getChildren().add(temp);
 
         }
         for (int j = 0; j <= grid_y; j++) {
             Line temp = new Line();
             temp.setStartX(0);
-            temp.setEndX(size*grid_x);
+            temp.setEndX((size+width*2)*grid_x);
 
-            temp.setStartY(j*size);
-            temp.setEndY(j*size);
+            temp.setStartY(j*(size+width*2));
+            temp.setEndY(j*(size+width*2));
 
             temp.setStroke(Color.GAINSBORO);
-            temp.setStrokeWidth(2);
+            temp.setStrokeWidth(width*2);
             root.getChildren().add(temp);
 
         }

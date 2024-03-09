@@ -1,3 +1,5 @@
+package Objects;
+
 public class Location {
     int x;
 
