@@ -21,14 +21,14 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws IOException {
 
-        Map TheMap = new Map();
+        Map TheMap = new Map(512,512,64,2,4,8);
 
 
 
 
 
 
-        Scene mapScene = TheMap.Map;
+        Scene mapScene = TheMap.miniMap;
 
 
         stage.setScene(mapScene);
