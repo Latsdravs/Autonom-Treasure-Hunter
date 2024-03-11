@@ -12,8 +12,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 
-import java.util.ArrayList;
-import java.util.Random;
+import java.util.*;
 
 public class Map {
     Scene Map;
@@ -31,11 +30,11 @@ public class Map {
         WritableImage colorMapped = new WritableImage(offset*2+1+grid_x*(miniSize+1),offset*2+1+grid_y*(miniSize+1));
 
         PixelWriter writer = colorMapped.getPixelWriter();
-        BPSRoom(grid_x,grid_y,5,15,mapValue,4,20);
+        BPSRoom(grid_x,grid_y,5,15,mapValue,4,20,false);
 
 
 
-        BPSRoom(grid_x,grid_y,4,5,mapValue,542,20);
+        BPSRoom(grid_x,grid_y,4,5,mapValue,542,20,true);
 
 
         NoiseFill(grid_x,grid_y,65,mapValue);
@@ -284,46 +283,54 @@ public class Map {
 
 
     }
-    void BPSRoom(int grid_x,int grid_y,int expSpace,int roomSize,int[][] map,int ID,int iteration) {
-        BPSRoom(grid_x,grid_y,expSpace,roomSize,roomSize,map,ID,iteration);
+    void BPSRoom(int grid_x,int grid_y,int expSpace,int roomSize,int[][] map,int ID,int iteration,boolean isRoaded) {
+        BPSRoom(grid_x,grid_y,expSpace,roomSize,roomSize,map,ID,iteration,isRoaded);
     }
+    //duvarlara renkli offsett ekle
+    void BPSRoom(int grid_x,int grid_y,int expSpace,int roomSize_x,int roomSize_y,int[][] map,int ID,int iteration,boolean isRoaded){
 
-    void BPSRoom(int grid_x,int grid_y,int expSpace,int roomSize_x,int roomSize_y,int[][] map,int ID,int iteration){
+
         int[] empties = new int[]{0};
 
         int steps_x = Integer.highestOneBit(grid_x)>>expSpace;
         int steps_y = Integer.highestOneBit(grid_y)>>expSpace;
-        int[] locations = new int[iteration];
+        ArrayList<roomKey> rooms = new ArrayList<>();
         for (int r = 0; r < iteration; r++) {
             Random random = new Random();
-            int theStep_x = random.nextInt(steps_x);
+            int theStep_x = random.nextInt(steps_x);//steps_x-1 e eşitken dene
             int theStep_y = random.nextInt(steps_y);
             int start_x = 0;
             int end_x = grid_x;
 
             int start_y = 0;
             int end_y = grid_y;
-            int theLocation=0;
+
             for (int i = 1; i < steps_x; i*=2) {
-                theLocation<<=1;
+
 
                 if(theStep_x%2==1) {
                     start_x = (end_x + start_x) / 2;
-                    theLocation++;
+
                 }
                 else
                     end_x = (end_x+start_x)/2;
 
+
+
                 theStep_x/=2;
             }
+
             for (int i = 1; i < steps_y; i*=2) {
-                theLocation<<=1;
+
+
                 if(theStep_y%2==1) {
                     start_y = (end_y + start_y) / 2;
-                    theLocation++;
+
                 }
                 else
                     end_y = (end_y+start_y)/2;
+
+
 
                 theStep_y/=2;
             }
@@ -334,8 +341,45 @@ public class Map {
                 int temp_x = random.nextInt(start_x,end_x-roomSize_x+1);
                 int temp_y = random.nextInt(start_y,end_y-roomSize_y+1);
                 fillMatrix(map,temp_x,temp_x+roomSize_x,temp_y,temp_y+roomSize_y,ID);
-                locations[r]=theLocation;
+                if(isRoaded)
+                    rooms.add(new roomKey(temp_x+roomSize_x/2,temp_y+roomSize_y/2));
+
             }else r--;
+        }
+
+        if(isRoaded){
+
+            ArrayList<distanceKey> roads = new ArrayList<>();
+            roomKey head = rooms.getFirst();
+            for (int i = 0; i < iteration-1; i++) {
+                distanceKey temp = null;
+                roomKey next = null;
+                int tempDist=Integer.MAX_VALUE;
+                for (roomKey room:
+                     rooms) {
+                    if(room==head)continue;
+                    distanceKey temp2 = new distanceKey(head,room);
+                    if(temp2.distance<=tempDist){
+                        temp=temp2;
+                        tempDist=temp2.distance;
+                        next = room;
+                    }
+
+                }
+                if (temp != null) {
+                    roads.add(temp);
+                    rooms.remove(head);
+                    head=next;
+                }else System.out.println("ohh noo");
+
+
+            }
+
+
+            for (distanceKey road:
+                    roads) {
+                fillRoad(3,road.A.x,road.B.x,road.A.y,road.B.y,ID,map,empties);
+            }
         }
 
 
@@ -343,6 +387,76 @@ public class Map {
 
 
 
+
+
+
+    }
+    void paintRoadV(int width,int x,int start_y,int end_y,int ID,int[][] map,int[] empty){
+        if(start_y>end_y){
+            int temp=start_y;
+            start_y=end_y;
+            end_y=temp;
+        }
+        for (int i = start_y; i <= end_y; i++) {
+            for (int j = -width/2; j < width/2+1; j++) {
+
+                if(isHere(empty,map[x+j][i]))map[x+j][i]=ID;
+            }
+        }
+    }
+    void paintRoadH(int width,int y,int start_x,int end_x,int ID,int[][] map,int[] empty){
+        if(start_x>end_x){
+            int temp=start_x;
+            start_x=end_x;
+            end_x=temp;
+        }
+        for (int i = start_x; i <= end_x; i++) {
+            for (int j = -width/2; j < width/2+1; j++) {
+
+                if(isHere(empty,map[i][y+j]))map[i][y+j]=ID;
+            }
+        }
+    }
+    void fillRoad(int width,int start_x,int end_x,int start_y,int end_y,int ID,int[][] map,int[] empty){//choose width odd
+
+
+        Random random = new Random();
+        if(random.nextInt(2)==0){
+            paintRoadV(width,start_x,start_y,end_y,ID,map,empty);
+            paintRoadH(width,end_y,start_x,end_x,ID,map,empty);
+        }else {
+            paintRoadH(width,start_y,start_x,end_x,ID,map,empty);
+            paintRoadV(width,end_x,start_y,end_y,ID,map,empty);
+        }
+
+    }
+    class roomKey{
+        public roomKey(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+        int roaded = -1;
+
+        final int x;
+        final int y;
+    }
+    class distanceKey{
+        final int distance;
+        final roomKey A;
+        final roomKey B;
+        public boolean sameWay(){
+            if(A.roaded < B.roaded)B.roaded = A.roaded;
+            else if(B.roaded < A.roaded)A.roaded = B.roaded;
+            else return true;
+            return false;
+        }
+
+        public distanceKey( roomKey a, roomKey b) {
+
+            A = a;
+            B = b;
+            this.distance = Math.abs((A.x- B.x))+Math.abs(A.y- B.y);
+        }
     }
     void fillMatrix(int[][] matrix,int start_x,int end_x,int start_y,int end_y,int filler){
         for (int i = start_x; i < end_x; i++) {
@@ -423,6 +537,6 @@ public class Map {
         }while (i!=start_x || j!=start_y);
 
         return true;
-    }
+    }//Hatalı
 
 }
