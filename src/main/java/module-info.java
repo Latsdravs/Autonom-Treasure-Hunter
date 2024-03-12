@@ -5,4 +5,6 @@ module com.example.demo {
 
     opens com.example.demo to javafx.fxml;
     exports com.example.demo;
+    exports Controller to views.startPage.fxml;
+    opens Controller to javafx.fxml;
 }

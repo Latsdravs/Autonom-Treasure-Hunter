@@ -18,7 +18,15 @@ public class Map {
     Scene Map;
     Scene miniMap;
 
-    public Map(int grid_x,int grid_y,int size,int width,int offset,int miniSize) {
+    public Scene getMap() {
+        return Map;
+    }
+
+    public Scene getMiniMap() {
+        return miniMap;
+    }
+
+    public Map(int grid_x, int grid_y, int size, int width, int offset, int miniSize) {
         int[][] mapValue = new int[grid_x][grid_y];
 
 

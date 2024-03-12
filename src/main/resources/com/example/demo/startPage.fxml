@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.Background?>
+<?import javafx.scene.layout.BackgroundFill?>
+<?import javafx.scene.layout.CornerRadii?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.paint.Color?>
+
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="Controller.startSceneController">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+
+
+    <children>
+        <HBox spacing="10" alignment="CENTER">
+            <children>
+                <TextField fx:id="firstNumberField" promptText="İlk Sayı"/>
+                <TextField fx:id="secondNumberField" promptText="İkinci Sayı"/>
+                <Button text="Yeni Harita Oluştur" onAction="#createNewMap" style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+                <Button text="Başlat" onAction="#start" style="-fx-background-color: #2ecc71; -fx-text-fill: white;"/>
+            </children>
+        </HBox>
+    </children>
+</StackPane>
