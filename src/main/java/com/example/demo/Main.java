@@ -21,17 +21,7 @@ public class Main extends Application {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("startPage.fxml"));
         Parent root = loader.load();
         startSceneController controller = loader.getController();
-
-        EventHandler<ActionEvent> startGame = new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                Scene game = controller.getTheMap().miniMap;
-                stage.setScene(game);
-            }
-        };
-
-        controller.getStartButton().setOnAction(startGame);
-
+        controller.setTheStage(stage);
 
        // Map TheMap = new Map(512,512,64,2,4,8);
 

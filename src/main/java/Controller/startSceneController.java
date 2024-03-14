@@ -2,9 +2,12 @@ package Controller;
 
 
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import com.example.demo.Map;
 import javafx.fxml.FXML;
@@ -14,6 +17,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 
 import java.io.IOException;
+import java.util.LinkedList;
 
 public class startSceneController {
 
@@ -28,8 +32,19 @@ public class startSceneController {
 
     @FXML
     private Button startButton;
+    private Stage theStage;
+
+    public Stage getTheStage() {
+        return theStage;
+    }
+
+    public void setTheStage(Stage theStage) {
+        this.theStage = theStage;
+    }
 
     private Map theMap;
+    private VBox messagesContainer;
+    private LinkedList<String> messages;
     @FXML
     private void createNewMap() {
         try {
@@ -67,10 +82,27 @@ public class startSceneController {
             stage.setFullScreen(true);
         }
     }
+    private void addButtonClicked(String buttonName) {
+        String message = buttonName + " tuşuna basıldı";
 
+        // Yeni mesajı ekleyip güncellenmiş listeyi göster
+        messages.addFirst(message);
+        updateMessagesContainer();
+    }
 
-    public Button getStartButton() {
-        return startButton;
+    private void updateMessagesContainer() {
+        // Mesajları temizle ve güncellenmiş listeyi göster
+        messagesContainer.getChildren().clear();
+
+        for (String message : messages) {
+            messagesContainer.getChildren().add(createMessageLabel(message));
+        }
+    }
+
+    private Label createMessageLabel(String message) {
+        Label label = new Label(message);
+        label.setStyle("-fx-border-color: black;");
+        return label;
     }
 
     @FXML
@@ -78,32 +110,37 @@ public class startSceneController {
         // Başlatma işlemlerini buraya ekle
         if (theMap != null) {
 
-               // FXMLLoader loader = new FXMLLoader(getClass().getResource("mapScene.fxml"));
-               // Parent root = loader.load();
+            //messagesContainer = new VBox(10);
+            //messagesContainer.setAlignment(Pos.TOP_RIGHT);
+            //messages = new LinkedList<>();
 
-               // MapSceneController mapSceneController = loader.getController();
-               // mapSceneController.initData(theMap);
+            //Button buttonA = new Button("A");
+            //buttonA.setOnAction(e -> addButtonClicked("A"));
 
-                Stage stage = new Stage();
-                stage.setTitle("Autonom Treasure Hunter");
+            //Button buttonB = new Button("B");
+            //buttonB.setOnAction(e -> addButtonClicked("B"));
 
-                Scene mapScene = theMap.getMiniMap();
+            //Button buttonC = new Button("C");
+            //buttonC.setOnAction(e -> addButtonClicked("C"));
+
+            //Button buttonD = new Button("D");
+            //buttonD.setOnAction(e -> addButtonClicked("D"));
+
+            //VBox root = new VBox(20);
+            //root.getChildren().addAll(buttonA, buttonB, buttonC, buttonD, messagesContainer);
+
+
+
+            Scene mapScene = theMap.getMiniMap();
 
                 Button fullScreenButton = new Button("Toggle FullScreen");
 
                 mapScene.setOnKeyPressed(event -> {
                     if (event.getCode() == KeyCode.F) {
-                        toggleFullScreen(stage);
+                        toggleFullScreen(theStage);
                     }
                 });
-                stage.setScene(mapScene);
-                stage.show();
-
-
-                // Ana sahneyi kapatma
-             //   Stage currentStage = (Stage) startButton.getScene().getWindow();
-            //    currentStage.close();
-
+                theStage.setScene(mapScene);
 
         } else {
             showAlert("Uyarı", "Harita Eksik", "Lütfen önce harita oluşturun.");
