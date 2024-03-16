@@ -24,7 +24,17 @@ public class Map {
     public Scene getMiniMap() {
         return miniMap;
     }
-
+    int state = 0;
+    int grid_x;
+    int grid_y;
+    int size;
+    int width;
+    int offset;
+    int miniSize;
+    int[][] mapValue;
+    int[][] mapHeat;
+    PixelWriter miniWriter;
+    ImageView[][] grid;
 
     class Point{
 
@@ -39,106 +49,163 @@ public class Map {
     }
 
     public Map(int grid_x, int grid_y, int size, int width, int offset, int miniSize) {
-        int[][] mapValue = new int[grid_x][grid_y];
-
-
-
-
-
-
+        this.mapValue = new int[grid_x][grid_y];
+        this.grid_x = grid_x;
+        this.grid_y = grid_y;
+        this.size = size;
+        this.width = width;
+        this.offset = offset;
+        this.miniSize = miniSize;
         Group mini = new Group();
+        //Basic Objects
+        {
+        BPSRoomRoaded(grid_x, grid_y, 4, 12, mapValue, 542, grid_x * grid_y / 8192 + 10);
 
 
-
-        BPSRoom(grid_x,grid_y,4,5,mapValue,542,40,true);
-
-
-        BPSRoom(grid_x,grid_y,5,15,mapValue,4,60,false);
+        BPSRoom(grid_x, grid_y, 4, 15, mapValue, 4, grid_x * grid_y / 8192 + 15);
 
 
+        BPSRoom(grid_x, grid_y, 4, 2, 7, mapValue, 10, grid_x * grid_y / 4096 + 5);
+        BPSRoom(grid_x, grid_y, 4, 5, 2, mapValue, 9, grid_x * grid_y / 4096 + 5);
 
 
-
-        NoiseFill(grid_x,grid_y,62,mapValue);
-        mapValue=cellularAutomata(grid_x,grid_y,mapValue,12);
-
-        BPSRoom(grid_x,grid_y,4,2,7,mapValue,10,50,false);
-        BPSRoom(grid_x,grid_y,4,5,2,mapValue,9,50,false);
-
-
-        System.out.println("1");
-        ArrayList<Point>[] P_D=forestation(grid_x,grid_y,mapValue);
-        System.out.println("2");
-
-        BPSRoomOffsetted(grid_x,grid_y,4,1,10,mapValue,7,10,false,8,1);
-        BPSRoomOffsetted(grid_x,grid_y,4,10,1,mapValue,7,10,false,8,1);
+        BPSRoomOffsetted(grid_x, grid_y, 4, 1, 10, mapValue, 7, grid_x * grid_y / 8192 + 5,  8, 1);
+        BPSRoomOffsetted(grid_x, grid_y, 4, 10, 1, mapValue, 7, grid_x * grid_y / 8192 + 5,  8, 1);
+        }
         System.out.println("3");
 
 
 
         int[] IDs = new int[]{4};
         int[] empties = new int[]{0,70153,8};
-        executeStoneAge(grid_x,grid_y,mapValue,empties,P_D,800,800);
+
+        NoiseFill(grid_x,grid_y,62,mapValue);
+        mapValue=cellularAutomata(grid_x,grid_y,mapValue,12);
+        ArrayList<Point>[] P_D;
+        for (int i = 1; i < 6; i++) {
+            P_D=forestation(grid_x,grid_y,mapValue);
+
+            int Count = grid_x * grid_y / 512 / i + 20 / i;
+            executeStoneAge(grid_x,grid_y,mapValue,empties,P_D, Count, Count);
+        }
+
+
+
+
         System.out.println("4");
         //paintSides(IDs,mapValue,empties,542);
 
         WritableImage colorMapped = new WritableImage(offset*2+1+grid_x*(miniSize+1),offset*2+1+grid_y*(miniSize+1));
 
-        PixelWriter miniWriter = colorMapped.getPixelWriter();
-        paintCanvas(mapValue,miniWriter,grid_x,grid_y,miniSize,offset);
+        this.miniWriter = colorMapped.getPixelWriter();
 
+        this.mapHeat = addTemperature(grid_x,grid_y,mapValue);
+        paintCanvas(mapValue,miniWriter,grid_x,grid_y,miniSize,offset);
 
 
         System.out.println("Done deal");
         ImageView currentMap = new ImageView(colorMapped);
+        // istatistik bilgi
+        {
+            HashMap<String, Integer> istatistik = HashMap.newHashMap(12);
+            istatistik.put("Golden", 0);
+            istatistik.put("Chest",0);
+            istatistik.put("Character",0);
+            istatistik.put("Mountain", 0);
+            istatistik.put("White space", 0);
+            istatistik.put("Noise space", 0);
+            istatistik.put("Tree", 0);
+            istatistik.put("Rock", 0);
+            istatistik.put("Wall", 0);
+            istatistik.put("Wall Perimeter", 0);
+            istatistik.put("Bird", 0);
+            istatistik.put("Bee", 0);
+            int totalCount = 0;
+            for (int i = 0; i < grid_x; i++) {
+                for (int j = 0; j < grid_y; j++) {
+                    totalCount++;
+                    switch (mapValue[i][j]) {
+                        case 542:
+                            istatistik.replace("Golden", istatistik.get("Golden") + 1);
+                            break;
+                        case 543:
+                            istatistik.replace("Chest", istatistik.get("Chest") + 1);
+                            break;
+                        case 2:
+                            istatistik.replace("Character", istatistik.get("Character") + 1);
+                            break;
+                        case 4:
+                            istatistik.replace("Mountain", istatistik.get("Mountain") + 1);
+                            break;
+                        case 0:
+                            istatistik.replace("White space", istatistik.get("White space") + 1);
+                            break;
+                        case 70153:
+                            istatistik.replace("Noise space", istatistik.get("Noise space") + 1);
+                            break;
+                        case 5:
+                            istatistik.replace("Tree", istatistik.get("Tree") + 1);
+                            break;
+                        case 6:
+                            istatistik.replace("Rock", istatistik.get("Rock") + 1);
+                            break;
+                        case 7:
+                            istatistik.replace("Wall", istatistik.get("Wall") + 1);
+                            break;
+                        case 8:
+                            istatistik.replace("Wall Perimeter", istatistik.get("Wall Perimeter") + 1);
+                            break;
+                        case 9:
+                            istatistik.replace("Bee", istatistik.get("Bee") + 1);
+                            break;
+                        case 10:
+                            istatistik.replace("Bird", istatistik.get("Bird") + 1);
+                            break;
+                        default:
+                            totalCount--;
 
-
-
-
-
+                    }
+                }
+            }
+            System.out.println(istatistik);
+            System.out.println("total: " + totalCount);
+        }
 
         miniMap = addScene(mini);
         mini.getChildren().add(currentMap);
 
-
-
-
-
-
-
-
-
-
-
-
         Group root = new Group();
-        for (int i = 0; i <= grid_x; i++) {
-            Line temp = new Line();
-            temp.setStartX(i*(size+width*2));
-            temp.setEndX(i*(size+width*2));
+        //Lines
+        {
 
-            temp.setStartY(0);
-            temp.setEndY((size+width*2)*grid_y);
-            temp.setStroke(Color.GAINSBORO);
-            temp.setStrokeWidth(width*2);
-            root.getChildren().add(temp);
+            for (int i = 0; i <= grid_x; i++) {
+                Line temp = new Line();
+                temp.setStartX(i * (size + width * 2));
+                temp.setEndX(i * (size + width * 2));
 
+                temp.setStartY(0);
+                temp.setEndY((size + width * 2) * grid_y);
+                temp.setStroke(Color.GAINSBORO);
+                temp.setStrokeWidth(width * 2);
+                root.getChildren().add(temp);
+
+            }
+            for (int j = 0; j <= grid_y; j++) {
+                Line temp = new Line();
+                temp.setStartX(0);
+                temp.setEndX((size + width * 2) * grid_x);
+
+                temp.setStartY(j * (size + width * 2));
+                temp.setEndY(j * (size + width * 2));
+
+                temp.setStroke(Color.GAINSBORO);
+                temp.setStrokeWidth(width * 2);
+                root.getChildren().add(temp);
+
+            }
         }
-        for (int j = 0; j <= grid_y; j++) {
-            Line temp = new Line();
-            temp.setStartX(0);
-            temp.setEndX((size+width*2)*grid_x);
 
-            temp.setStartY(j*(size+width*2));
-            temp.setEndY(j*(size+width*2));
-
-            temp.setStroke(Color.GAINSBORO);
-            temp.setStrokeWidth(width*2);
-            root.getChildren().add(temp);
-
-        }
-
-        ImageView[][] grid=new ImageView[grid_x][grid_y];
+        this.grid=new ImageView[grid_x][grid_y];
         for (int i = 0; i < grid_x; i++) {
             for (int j = 0; j < grid_y; j++) {
                 ImageView temp=new ImageView();
@@ -155,16 +222,16 @@ public class Map {
         paint(0,0,64,Color.PALEGREEN,denemWriter);
         grid[0][0].setImage(denem);
 
-
-
-        Circle ball = new Circle();
-        ball.setCenterX(32+width);
-        ball.setCenterY(32+width);
-        ball.setRadius(32);
-        ball.setStroke(Color.FIREBRICK);
-        ball.setFill(Color.FIREBRICK);
-        root.getChildren().add(ball);
-
+        //Circle test
+        {
+            Circle ball = new Circle();
+            ball.setCenterX(32 + width);
+            ball.setCenterY(32 + width);
+            ball.setRadius(32);
+            ball.setStroke(Color.FIREBRICK);
+            ball.setFill(Color.FIREBRICK);
+            root.getChildren().add(ball);
+        }
 
 
 
@@ -198,6 +265,22 @@ public class Map {
     public Scene addScene(Node root)
     {
         return new Scene(addAnchorPane(root),720,720);
+    }
+    public void toggle(){
+        switch (this.state){
+            case 0:
+                paintCanvas(mapHeat,miniWriter,grid_x,grid_y,miniSize,offset);
+                state=1;
+                break;
+            case 1:
+                paintCanvas(mapValue,miniWriter,grid_x,grid_y,miniSize,offset);
+                state=2;
+                break;
+            case 2:
+                paintCanvas(mapValue,miniWriter,grid_x,grid_y,miniSize,offset);
+                state=0;
+                break;
+        }
     }
     void paint(int i,int j,int size,Color color,PixelWriter writer){
         for (int k = 0; k < size; k++) {
@@ -295,29 +378,58 @@ public class Map {
     * */
     Color getColor(int ID){
         return switch (ID) {
-            case 0 -> Color.WHITE;
+            case 0 -> Color.WHITE;//space
             case 1 -> Color.YELLOW;
-            case 2 -> Color.FIREBRICK;
-            case 4 -> Color.BROWN;
-            case 542 -> Color.GOLD;
-            case 70153 -> Color.DARKBLUE;
-            case 5 -> Color.DARKGREEN;
-            case 6 -> Color.DARKSLATEGRAY;
-            case 7 -> Color.DARKVIOLET;
-            case 8 -> Color.VIOLET;
-            case 9 -> Color.YELLOWGREEN;
-            case 10 -> Color.LIGHTSKYBLUE;
+            case 2 -> Color.FIREBRICK;//Character
+            case 4 -> Color.BROWN;//mountain
+            case 542 -> Color.GOLD;//goldens
+            case 543 -> Color.GOLDENROD;//Chest
+            case 70153 -> Color.DARKBLUE;//Noise
+            case 5 -> Color.DARKGREEN;//tree
+            case 6 -> Color.DARKSLATEGRAY;//rock
+            case 7 -> Color.DARKVIOLET;//wall
+            case 8 -> Color.VIOLET;//wall perimeter
+            case 9 -> Color.YELLOWGREEN;//bee
+            case 10 -> Color.LIGHTSKYBLUE;//bird
             case 40 -> Color.rgb(100,100,100);
             case 41 -> Color.rgb(110,110,110);
             case 42 -> Color.rgb(120,120,120);
-            default -> Color.DEEPPINK;
+            case -1 -> Color.DEEPPINK;
+            default -> rgbTone(ID-600);
         };
+    }
+    Color rgbTone(int value){
+        int maxInt=12;
+        double max = 12;
+        value=maxInt+6-value;
+        if(value > maxInt)return Color.DARKRED;
+        else if(value >= 0 )
+            return Color.rgb((int)(255.0/max*value),(int)(255.0/max*value),(int)(255.0/max*value));
+        return Color.BLACK;
+    }
+    Color rgbHeat(int value){
+        int maxInt=15;
+        double max = 15;
+        value=maxInt-value;
+        double halfmax = max/2;
+        if(0 <= value && value <= halfmax){
+            return Color.rgb(
+                    0,
+                    (int)(255.0/halfmax*value),
+                    (int)(255.0-255.0/halfmax*value));
+        }else if(halfmax < value && value <= max)return Color.rgb(
+                (int)(255.0/halfmax*(value-halfmax)),
+                (int)(255.0-255.0/halfmax*(value-halfmax)),
+                0);
+
+        return Color.BLACK;
     }
     void executeStoneAge(int grid_x,int grid_y,int[][] map,int[] empties ,ArrayList<Point>[] P_D,int stoneCount,int treeCount){
         Random random = new Random();
         for (int i = 0; i < treeCount; i++) {
             boolean again;
             do {
+
                 again=false;
                 int temp = random.nextInt(P_D[0].size());
                 int state = random.nextInt(4);
@@ -429,6 +541,26 @@ public class Map {
         }
     }
 
+    int[][] addTemperature(int grid_x,int grid_y,int[][] map){
+        int[] empties = new int[]{0,70153,542,8};
+        int max= 0;
+
+        int[][] tempered = new int[grid_x][grid_y];
+        for (int i = 0; i < grid_x; i++) {
+            for (int j = 0; j < grid_y; j++) {
+
+                if(!isHere(empties,map[i][j]))tempered[i][j]=map[i][j];
+                else {
+
+                    tempered[i][j] = 600+shortestSeen(grid_x, grid_y, map, i, j);
+                    if(tempered[i][j] > max)max =tempered[i][j];
+                }
+            }
+        }
+        System.out.println(max);
+
+        return tempered;
+    }
 
     void NoiseFill(int grid_x,int grid_y,int darkPercent,int[][] map){
         int[] empties = new int[]{0};
@@ -499,7 +631,7 @@ public class Map {
 
     }
     ArrayList[] forestation(int grid_x,int grid_y,int[][] map){
-        int heightMap[][] = new int[grid_x][grid_y];
+        int[][] heightMap = new int[grid_x][grid_y];
         for (int i = 0; i < grid_x; i++) {
             for (int j = 0; j < grid_y; j++) {
                 if(map[i][j]==70153)
@@ -541,6 +673,63 @@ public class Map {
         return P_and_D;
     }
 
+    int shortestStacked(int grid_x,int grid_y,int[][] map,int x, int y,int side){
+        int dist = 1;
+
+        do {
+            for (int i = dist; i > 0; i--) {
+                int lx = x + i;
+                int ly = y + (dist - i);
+                if (lx < grid_x && ly < grid_y && map[lx][ly] != map[x][y] && (dist < 5 || map[lx][ly]!=5 || map[lx][ly]!=6)) return dist * side;
+            }
+            for (int i = dist; i > 0; i--) {
+                int lx = x - (dist - i);
+                int ly = y + i;
+                if (lx > 0 && ly < grid_y && map[lx][ly] != map[x][y] && (dist < 5 || map[lx][ly]!=5 || map[lx][ly]!=6)) return dist * side;
+            }
+            for (int i = dist; i > 0; i--) {
+                int lx = x - i;
+                int ly = y - (dist - i);
+                if (lx > 0 && ly > 0 && map[lx][ly] != map[x][y] && (dist < 5 || map[lx][ly]!=5 || map[lx][ly]!=6)) return dist * side;
+            }
+            for (int i = dist; i > 0; i--) {
+                int lx = x + (dist - i);
+                int ly = y - i;
+                if (lx < grid_x && ly > 0 && map[lx][ly] != map[x][y] && (dist < 5 || map[lx][ly]!=5 || map[lx][ly]!=6)) return dist * side;
+            }
+            dist++;
+        } while (dist <= grid_x || dist <= grid_y);
+        return -1;
+    }
+    int shortestSeen(int grid_x,int grid_y,int[][] map,int x, int y){
+        int dist = 1;
+        int[] empties = new int[]{0,70153,542,8,543};
+
+        do {
+            for (int i = dist; i > 0; i--) {
+                int lx = x + i;
+                int ly = y + (dist - i);
+                if (lx < grid_x && ly < grid_y && !isHere(empties,map[lx][ly])) return dist ;
+            }
+            for (int i = dist; i > 0; i--) {
+                int lx = x - (dist - i);
+                int ly = y + i;
+                if (lx > 0 && ly < grid_y &&  !isHere(empties,map[lx][ly])) return dist;
+            }
+            for (int i = dist; i > 0; i--) {
+                int lx = x - i;
+                int ly = y - (dist - i);
+                if (lx > 0 && ly > 0 && !isHere(empties,map[lx][ly])) return dist ;
+            }
+            for (int i = dist; i > 0; i--) {
+                int lx = x + (dist - i);
+                int ly = y - i;
+                if (lx < grid_x && ly > 0 && !isHere(empties,map[lx][ly])) return dist ;
+            }
+            dist++;
+        } while (dist <= grid_x || dist <= grid_y);
+        return -1;
+    }
     int shortest(int grid_x,int grid_y,int[][] map,int x, int y,int side){
         int dist = 1;
 
@@ -548,34 +737,145 @@ public class Map {
             for (int i = dist; i > 0; i--) {
                 int lx = x + i;
                 int ly = y + (dist - i);
-                if (lx < grid_x && ly < grid_y && map[lx][ly] != map[x][y]) return dist * side;
+                if (lx < grid_x && ly < grid_y && map[lx][ly] != map[x][y] ) return dist * side;
             }
             for (int i = dist; i > 0; i--) {
                 int lx = x - (dist - i);
                 int ly = y + i;
-                if (lx > 0 && ly < grid_y && map[lx][ly] != map[x][y]) return dist * side;
+                if (lx > 0 && ly < grid_y && map[lx][ly] != map[x][y] ) return dist * side;
             }
             for (int i = dist; i > 0; i--) {
                 int lx = x - i;
                 int ly = y - (dist - i);
-                if (lx > 0 && ly > 0 && map[lx][ly] != map[x][y]) return dist * side;
+                if (lx > 0 && ly > 0 && map[lx][ly] != map[x][y] ) return dist * side;
             }
             for (int i = dist; i > 0; i--) {
                 int lx = x + (dist - i);
                 int ly = y - i;
-                if (lx < grid_x && ly > 0 && map[lx][ly] != map[x][y]) return dist * side;
+                if (lx < grid_x && ly > 0 && map[lx][ly] != map[x][y] ) return dist * side;
             }
             dist++;
         } while (dist <= grid_x || dist <= grid_y);
         return -1;
     }
-
-    void BPSRoom(int grid_x,int grid_y,int expSpace,int roomSize,int[][] map,int ID,int iteration,boolean isRoaded) {
-        BPSRoom(grid_x,grid_y,expSpace,roomSize,roomSize,map,ID,iteration,isRoaded);
+    void BPSRoomRoaded(int grid_x,int grid_y,int expSpace,int roomSize,int[][] map,int ID,int iteration) {
+        BPSRoomRoaded(grid_x,grid_y,expSpace,roomSize,roomSize,map,ID,iteration);
     }
-    //duvarlara renkli offsett ekle
 
-    void BPSRoom(int grid_x,int grid_y,int expSpace,int roomSize_x,int roomSize_y,int[][] map,int ID,int iteration,boolean isRoaded){
+    void BPSRoomRoaded(int grid_x,int grid_y,int expSpace,int roomSize_x,int roomSize_y,int[][] map,int ID,int iteration){
+
+
+        int[] empties = new int[]{0,8};
+
+        int steps_x = Integer.highestOneBit(grid_x)>>expSpace;
+        int steps_y = Integer.highestOneBit(grid_y)>>expSpace;
+        ArrayList<roomKey> rooms = new ArrayList<>();
+        for (int r = 0; r < iteration; r++) {
+            Random random = new Random();
+            int theStep_x = random.nextInt(steps_x);//steps_x-1 e eşitken dene
+            int theStep_y = random.nextInt(steps_y);
+            int start_x = 0;
+            int end_x = grid_x;
+
+            int start_y = 0;
+            int end_y = grid_y;
+
+            for (int i = 1; i < steps_x; i*=2) {
+
+
+                if(theStep_x%2==1) {
+                    start_x = (end_x + start_x) / 2;
+
+                }
+                else
+                    end_x = (end_x+start_x)/2;
+
+
+
+                theStep_x/=2;
+            }
+
+            for (int i = 1; i < steps_y; i*=2) {
+
+
+                if(theStep_y%2==1) {
+                    start_y = (end_y + start_y) / 2;
+
+                }
+                else
+                    end_y = (end_y+start_y)/2;
+
+
+
+                theStep_y/=2;
+            }
+            //random sayı 11111 iken dene
+            int temp_x = random.nextInt(start_x,end_x-roomSize_x+1);
+            int temp_y = random.nextInt(start_y,end_y-roomSize_y+1);
+
+
+            if(checkSpace(map,temp_x,temp_x+roomSize_x,temp_y,temp_y+roomSize_y,empties)){
+                fillMatrix(map,temp_x,temp_x+roomSize_x,temp_y,temp_y+roomSize_y,ID);
+                int chest_x = random.nextInt(temp_x,temp_x+roomSize_x);
+                int chest_y = random.nextInt(temp_y,temp_y+roomSize_y);
+                map[chest_x][chest_y]=ID+1;
+
+                rooms.add(new roomKey(temp_x+roomSize_x/2,temp_y+roomSize_y/2));
+
+            }else r--;
+        }
+        //Road work
+        {
+
+            ArrayList<distanceKey> roads = new ArrayList<>();
+            roomKey head = rooms.getFirst();
+            for (int i = 0; i < iteration-1; i++) {
+                distanceKey temp = null;
+                roomKey next = null;
+                int tempDist=Integer.MAX_VALUE;
+                for (roomKey room:
+                        rooms) {
+                    if(room==head)continue;
+                    distanceKey temp2 = new distanceKey(head,room);
+                    if(temp2.distance<=tempDist){
+                        temp=temp2;
+                        tempDist=temp2.distance;
+                        next = room;
+                    }
+
+                }
+                if (temp != null) {
+                    roads.add(temp);
+                    rooms.remove(head);
+                    head=next;
+                }else System.out.println("ohh noo");
+
+
+            }
+
+
+            for (distanceKey road:
+                    roads) {
+                fillRoad(5,road.A.x,road.B.x,road.A.y,road.B.y,ID,map,empties);
+            }
+        }
+
+
+
+
+
+
+
+
+
+    }
+
+
+    void BPSRoom(int grid_x,int grid_y,int expSpace,int roomSize,int[][] map,int ID,int iteration) {
+        BPSRoom(grid_x,grid_y,expSpace,roomSize,roomSize,map,ID,iteration);
+    }
+
+    void BPSRoom(int grid_x,int grid_y,int expSpace,int roomSize_x,int roomSize_y,int[][] map,int ID,int iteration){
 
 
         int[] empties = new int[]{0,8};
@@ -630,46 +930,11 @@ public class Map {
             if(checkSpace(map,temp_x,temp_x+roomSize_x,temp_y,temp_y+roomSize_y,empties)){
                 fillMatrix(map,temp_x,temp_x+roomSize_x,temp_y,temp_y+roomSize_y,ID);
 
-                if(isRoaded)
-                    rooms.add(new roomKey(temp_x+roomSize_x/2,temp_y+roomSize_y/2));
 
             }else r--;
         }
 
-        if(isRoaded){
 
-            ArrayList<distanceKey> roads = new ArrayList<>();
-            roomKey head = rooms.getFirst();
-            for (int i = 0; i < iteration-1; i++) {
-                distanceKey temp = null;
-                roomKey next = null;
-                int tempDist=Integer.MAX_VALUE;
-                for (roomKey room:
-                     rooms) {
-                    if(room==head)continue;
-                    distanceKey temp2 = new distanceKey(head,room);
-                    if(temp2.distance<=tempDist){
-                        temp=temp2;
-                        tempDist=temp2.distance;
-                        next = room;
-                    }
-
-                }
-                if (temp != null) {
-                    roads.add(temp);
-                    rooms.remove(head);
-                    head=next;
-                }else System.out.println("ohh noo");
-
-
-            }
-
-
-            for (distanceKey road:
-                    roads) {
-                fillRoad(3,road.A.x,road.B.x,road.A.y,road.B.y,ID,map,empties);
-            }
-        }
 
 
 
@@ -680,7 +945,7 @@ public class Map {
 
 
     }
-    void BPSRoomOffsetted(int grid_x,int grid_y,int expSpace,int roomSize_x,int roomSize_y,int[][] map,int ID,int iteration,boolean isRoaded,int offsetId,int offsetSize){
+    void BPSRoomOffsetted(int grid_x,int grid_y,int expSpace,int roomSize_x,int roomSize_y,int[][] map,int ID,int iteration,int offsetId,int offsetSize){
 
 
         int[] empties = new int[]{0};
@@ -751,46 +1016,12 @@ public class Map {
                         ,temp_y+roomSize_y+offsetSize
                         ,ID);
 
-                if(isRoaded)
-                    rooms.add(new roomKey(temp_x+roomSize_x/2,temp_y+roomSize_y/2));
+
 
             }else r--;
         }
 
-        if(isRoaded){
 
-            ArrayList<distanceKey> roads = new ArrayList<>();
-            roomKey head = rooms.getFirst();
-            for (int i = 0; i < iteration-1; i++) {
-                distanceKey temp = null;
-                roomKey next = null;
-                int tempDist=Integer.MAX_VALUE;
-                for (roomKey room:
-                        rooms) {
-                    if(room==head)continue;
-                    distanceKey temp2 = new distanceKey(head,room);
-                    if(temp2.distance<=tempDist){
-                        temp=temp2;
-                        tempDist=temp2.distance;
-                        next = room;
-                    }
-
-                }
-                if (temp != null) {
-                    roads.add(temp);
-                    rooms.remove(head);
-                    head=next;
-                }else System.out.println("ohh noo");
-
-
-            }
-
-
-            for (distanceKey road:
-                    roads) {
-                fillRoad(3,road.A.x,road.B.x,road.A.y,road.B.y,ID,map,empties);
-            }
-        }
 
 
 
