@@ -93,6 +93,7 @@ public class startSceneController {
             stage.setScene(theMap.getMiniMap());
         }
     }
+
     private void addButtonClicked(String buttonName) {
         String message = buttonName + " tuşuna basıldı";
 
@@ -146,10 +147,9 @@ public class startSceneController {
             Scene miniMapScene = theMap.getMiniMap();
             AnchorPane anchorPane = (AnchorPane) theMap.getMiniMap().getRoot();
             ScrollPane scrollPane = erisimYontemi2(anchorPane);
-            System.out.println(scrollPane);
             double step = 0.02; // Kaydırma adım miktarı
             scrollPane.setVvalue(0); // Dikey değer için (0.0 - 1.0 arası)
-            scrollPane.setHvalue(0); // Yatay değer için (0.0 - 1.0 arası)\
+            scrollPane.setHvalue(0); // Yatay değer için (0.0 - 1.0 arası)
 
             anchorPane.setOnKeyPressed(event -> {
                 switch (event.getCode()) {
@@ -190,7 +190,9 @@ public class startSceneController {
                         toggleFullScreen(theStage);
                  } else if (event.getCode() == KeyCode.M) {
                         toggleMap(theStage);
-
+                        if(fullscreen) theStage.setFullScreen(true);
+                    } else if (event.getCode() == KeyCode.T) {
+                        theMap.toggle();
                     }
                 });
 
@@ -204,8 +206,6 @@ public class startSceneController {
     }
     private ScrollPane erisimYontemi2(AnchorPane anchorPane) {
 
-
-        System.out.println("Yöntem 2 ile erişilen elemanlar:");
         for (javafx.scene.Node node : anchorPane.getChildren()) {
             return (ScrollPane) node;
         }
