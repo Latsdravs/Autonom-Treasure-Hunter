@@ -1,7 +1,7 @@
 package Objects;
 
 public abstract class Wall extends InanimateObstacle{
-    public Wall(int size, Location loc) {
-        super(size, loc);
+    public Wall(int x, int y) {
+        super(10, x,y);
     }
 }

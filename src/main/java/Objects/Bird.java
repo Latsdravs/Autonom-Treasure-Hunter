@@ -1,7 +1,7 @@
 package Objects;
 
 public class Bird extends AnimateObstacle{
-    public Bird(int size, Location loc) {
-        super(size, loc, 1);
+    public Bird(int x,int y) {
+        super(18, x,y);
     }
 }

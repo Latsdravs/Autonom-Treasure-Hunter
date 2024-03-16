@@ -1,7 +1,7 @@
 package Objects;
 
 public class SummerTree extends Tree {
-    public SummerTree(int size, Location loc) {
-        super(size, loc);
+    public SummerTree( int x, int y) {
+        super( x,y);
     }
 }

@@ -21,6 +21,11 @@ public class Location {
 
     int y;
 
+    public Location duplicate(){
+        return new Location(this.x, this.y);
+
+    }
+
     public Location(int x,int y){
         this.x = x;
         this.y = y;

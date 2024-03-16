@@ -1,7 +1,7 @@
 package Objects;
 
-public abstract class SummerMountain extends Mountain{
-    public SummerMountain(int size, Location loc) {
-        super(size, loc);
+public class SummerMountain extends Mountain{
+    public SummerMountain(int x, int y) {
+        super( x,y);
     }
 }

@@ -10,10 +10,11 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 
-import java.nio.Buffer;
+import Objects.*;
 import java.util.*;
 
 public class Map {
+    ArrayList<GameObject> objects = new ArrayList<>();
     Scene Map;
     Scene miniMap;
 
@@ -24,6 +25,7 @@ public class Map {
     public Scene getMiniMap() {
         return miniMap;
     }
+    Player P;
     int state = 0;
     int grid_x;
     int grid_y;
@@ -33,8 +35,10 @@ public class Map {
     int miniSize;
     int[][] mapValue;
     int[][] mapHeat;
+    int[][] mapSis;
     PixelWriter miniWriter;
     ImageView[][] grid;
+    ImageView P_View;
 
     class Point{
 
@@ -59,18 +63,19 @@ public class Map {
         Group mini = new Group();
         //Basic Objects
         {
-        BPSRoomRoaded(grid_x, grid_y, 4, 12, mapValue, 542, grid_x * grid_y / 8192 + 10);
+            BPSRoom(grid_x,grid_y,2,1,mapValue,3,1);
+            BPSRoomRoaded(grid_x, grid_y, 4, 12, mapValue, 542, grid_x * grid_y / 8192 + 10);
 
 
-        BPSRoom(grid_x, grid_y, 4, 15, mapValue, 4, grid_x * grid_y / 8192 + 15);
+            BPSRoom(grid_x, grid_y, 4, 15, mapValue, 4, grid_x * grid_y / 8192 + 15);
 
 
-        BPSRoom(grid_x, grid_y, 4, 2, 7, mapValue, 10, grid_x * grid_y / 4096 + 5);
-        BPSRoom(grid_x, grid_y, 4, 5, 2, mapValue, 9, grid_x * grid_y / 4096 + 5);
+            BPSRoom(grid_x, grid_y, 4, 2, 7, mapValue, 10, grid_x * grid_y / 4096 + 5);
+            BPSRoom(grid_x, grid_y, 4, 5, 2, mapValue, 9, grid_x * grid_y / 4096 + 5);
 
 
-        BPSRoomOffsetted(grid_x, grid_y, 4, 1, 10, mapValue, 7, grid_x * grid_y / 8192 + 5,  8, 1);
-        BPSRoomOffsetted(grid_x, grid_y, 4, 10, 1, mapValue, 7, grid_x * grid_y / 8192 + 5,  8, 1);
+            BPSRoomOffsetted(grid_x, grid_y, 4, 1, 10, mapValue, 7, grid_x * grid_y / 8192 + 5,  8, 1);
+            BPSRoomOffsetted(grid_x, grid_y, 4, 10, 1, mapValue, 7, grid_x * grid_y / 8192 + 5,  8, 1);
         }
         System.out.println("3");
 
@@ -219,19 +224,16 @@ public class Map {
         }
         WritableImage denem = new WritableImage(64,64);
         PixelWriter denemWriter = denem.getPixelWriter();
-        paint(0,0,64,Color.PALEGREEN,denemWriter);
-        grid[0][0].setImage(denem);
+        paint(0,0,64,Color.FIREBRICK,denemWriter);
+
+        this.P_View=new ImageView(denem);
+        P_View.setFitHeight(size);
+        P_View.setPreserveRatio(true);
+
+        root.getChildren().add(P_View);
 
         //Circle test
-        {
-            Circle ball = new Circle();
-            ball.setCenterX(32 + width);
-            ball.setCenterY(32 + width);
-            ball.setRadius(32);
-            ball.setStroke(Color.FIREBRICK);
-            ball.setFill(Color.FIREBRICK);
-            root.getChildren().add(ball);
-        }
+
 
 
 
@@ -265,6 +267,63 @@ public class Map {
     public Scene addScene(Node root)
     {
         return new Scene(addAnchorPane(root),720,720);
+    }
+    public void start(){
+        mapSis=new int[grid_x][grid_y];
+        for (int i = 0; i < grid_x; i++) {
+            for (int j = 0; j < grid_y; j++) {
+                mapSis[i][j]=12;
+            }
+        }
+
+    }
+    public void update(){
+        int old_x=P.getX();
+        int old_y=P.getY();
+        int dir =P.move();
+        int new_x=P.getX();
+        int new_y=P.getY();
+        mapValue[old_x][old_y]=0;
+        mapValue[new_x][new_y]=3;
+        mapSis[old_x][old_y]=0;
+        mapSis[new_x][new_y]=3;
+        setP_View(new_x,new_y);
+        mapHeat = addTemperature(this.grid_x,this.grid_y,this.mapValue);//remove for performance
+        unSis(dir,new_x,new_y);
+
+
+    }
+    //      a  b -- dir
+    //UP    0  1 --  1
+    //DOWN  0 -1 -- -1
+    //RIGHT 1  0 --  2
+    //LEFT -1  0 -- -2
+    // MAYBE DIFFERENT
+    void unSis(int dir,int x,int y){
+        int a=dir/2;
+        int b=dir%2;
+        for (int i = -3; i <= 3; i++) {
+            int k=7*a+i*b   + x;
+            int l=7*b+i*a   + y;
+            mapSis[k][l]=mapValue[k][l];
+        }
+    }
+    void setP_View(int x,int y){
+        this.P_View.setX(width+x*(size+width*2));
+        this.P_View.setY(width+y*(size+width*2));
+    }
+
+    void addObject(int x,int y,int ID){
+        switch (ID){
+            case 3:
+                this.P = new Player(x,y);
+                break;
+            case 4:
+                if(x < this.grid_x/2)this.objects.add(new SummerMountain(x,y));
+                else this.objects.add(new WinterMountain(x,y));
+                break;
+
+        }
     }
     public void toggle(){
         switch (this.state){
@@ -391,6 +450,8 @@ public class Map {
             case 8 -> Color.VIOLET;//wall perimeter
             case 9 -> Color.YELLOWGREEN;//bee
             case 10 -> Color.LIGHTSKYBLUE;//bird
+            case 11 -> Color.DARKVIOLET;//WallV
+            case 12 -> Color.SLATEGRAY;//Sis
             case 40 -> Color.rgb(100,100,100);
             case 41 -> Color.rgb(110,110,110);
             case 42 -> Color.rgb(120,120,120);
@@ -703,7 +764,7 @@ public class Map {
     }
     int shortestSeen(int grid_x,int grid_y,int[][] map,int x, int y){
         int dist = 1;
-        int[] empties = new int[]{0,70153,542,8,543};
+        int[] empties = new int[]{0,70153,542,8,543,3};
 
         do {
             for (int i = dist; i > 0; i--) {

@@ -1,7 +1,7 @@
 package Objects;
 
 public abstract class Mountain extends InanimateObstacle{
-    public Mountain(int size, Location loc) {
-        super(size, loc);
+    public Mountain(int x, int y) {
+        super(225, x,y);
     }
 }

@@ -1,7 +1,7 @@
 package Objects;
 
 public class Bee extends AnimateObstacle{
-    public Bee(int size, Location loc) {
-        super(size, loc, 0);
+    public Bee(int x,int y) {
+        super(14,x,y);
     }
 }

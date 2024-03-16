@@ -1,10 +1,12 @@
 package Objects;
 
-public abstract class Obstacle {
-    Location loc;
-    int size;
-    Obstacle(int size, Location loc){
-        this.size = size;
-        this.loc = loc;
+public abstract class Obstacle extends GameObject {
+
+
+    Obstacle(int size, int x , int y){
+        super(size,x,y);
+
+
+
     }
 }
