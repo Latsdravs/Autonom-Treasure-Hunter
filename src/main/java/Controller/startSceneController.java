@@ -185,6 +185,8 @@ public class startSceneController {
                         theMap.update(1);
                     }else if(event.getCode() == KeyCode.D){
                         theMap.update(2);
+                    } else if (event.getCode()==KeyCode.SPACE) {
+                        
                     }
 
                 });

@@ -55,6 +55,8 @@ public class Map {
     }
 
     public Map(int grid_x, int grid_y, int size, int width, int offset, int miniSize) {
+        this.P_View=new ImageView();
+        this.mapImage=new Image[grid_x][grid_y];
         this.mapSis = new int[grid_x][grid_y];
         this.mapValue = new int[grid_x][grid_y];
         this.grid_x = grid_x;
@@ -66,7 +68,7 @@ public class Map {
         Group mini = new Group();
         //Basic Objects
         {
-            BPSRoom(grid_x,grid_y,2,1,mapValue,3,1);
+            BPSRoom(grid_x,grid_y,2,1,mapValue,2,1);
             BPSRoomRoaded(grid_x, grid_y, 4, 12, mapValue, 542, grid_x * grid_y / 8192 + 10);
 
 
@@ -229,7 +231,7 @@ public class Map {
         PixelWriter denemWriter = denem.getPixelWriter();
         paint(0,0,64,Color.FIREBRICK,denemWriter);
 
-        this.P_View=new ImageView(denem);
+
         P_View.setFitHeight(size);
         P_View.setPreserveRatio(true);
 
@@ -348,6 +350,7 @@ public class Map {
     void addObject(int x,int y,int ID){
         switch (ID){
             case 2:
+                System.out.println("P not null");
                 this.P = new Player(x,y);
                 this.P_View.setImage(P.getImage(0));
                 break;
@@ -1199,6 +1202,7 @@ public class Map {
 
             if(checkSpace(map,temp_x,temp_x+roomSize_x,temp_y,temp_y+roomSize_y,empties)){
                 fillMatrix(map,temp_x,temp_x+roomSize_x,temp_y,temp_y+roomSize_y,ID);
+                addObject(temp_x,temp_y,ID);
 
 
             }else r--;
@@ -1285,6 +1289,7 @@ public class Map {
                         ,temp_y+offsetSize
                         ,temp_y+roomSize_y+offsetSize
                         ,ID);
+                addObject(temp_x+offsetSize,temp_y+offsetSize,ID);
 
 
 
