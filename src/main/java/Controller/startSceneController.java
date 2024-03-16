@@ -75,11 +75,24 @@ public class startSceneController {
         alert.setContentText(content);
         alert.showAndWait();
     }
+    boolean fullscreen = false;
     private void toggleFullScreen(Stage stage) {
         if (stage.isFullScreen()) {
             stage.setFullScreen(false);
+            fullscreen = false;
         } else {
             stage.setFullScreen(true);
+            fullscreen = true;
+        }
+
+    }
+
+
+    private void toggleMap(Stage stage) {
+        if (stage.getScene()==theMap.getMiniMap()) {
+            stage.setScene(theMap.getMap());
+        } else {
+            stage.setScene(theMap.getMiniMap());
         }
     }
     private void addButtonClicked(String buttonName) {
@@ -131,16 +144,32 @@ public class startSceneController {
 
 
 
-            Scene mapScene = theMap.getMiniMap();
+            Scene mapScene = theMap.getMap();
+            Scene miniMapScene = theMap.getMiniMap();
 
-                Button fullScreenButton = new Button("Toggle FullScreen");
+
 
                 mapScene.setOnKeyPressed(event -> {
                     if (event.getCode() == KeyCode.F) {
                         toggleFullScreen(theStage);
+                    } else if (event.getCode() == KeyCode.M) {
+                        toggleMap(theStage);
+                        if(fullscreen) theStage.setFullScreen(true);
                     }
                 });
-                theStage.setScene(mapScene);
+
+
+                miniMapScene.setOnKeyPressed(event -> {
+                    if (event.getCode() == KeyCode.F) {
+                        toggleFullScreen(theStage);
+                 } else if (event.getCode() == KeyCode.M) {
+                        toggleMap(theStage);
+                        if(fullscreen) theStage.setFullScreen(true);
+                    }
+                });
+
+
+            theStage.setScene(mapScene);
 
         } else {
             showAlert("Uyarı", "Harita Eksik", "Lütfen önce harita oluşturun.");
