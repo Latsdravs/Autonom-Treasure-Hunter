@@ -19,7 +19,7 @@ public abstract class GameObject {
         this.size=size;
         this.images = new Image[size];
     }
-    Image[] getImages(){
-        return images;
+    public Image getImage(int i){
+        return images[i];
     }
 }

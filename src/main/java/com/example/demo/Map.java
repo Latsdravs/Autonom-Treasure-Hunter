@@ -36,6 +36,8 @@ public class Map {
     int[][] mapValue;
     int[][] mapHeat;
     int[][] mapSis;
+    Image[][] mapImage;
+    Image sisImage;
     PixelWriter miniWriter;
     ImageView[][] grid;
     ImageView P_View;
@@ -53,6 +55,7 @@ public class Map {
     }
 
     public Map(int grid_x, int grid_y, int size, int width, int offset, int miniSize) {
+        this.mapSis = new int[grid_x][grid_y];
         this.mapValue = new int[grid_x][grid_y];
         this.grid_x = grid_x;
         this.grid_y = grid_y;
@@ -74,7 +77,7 @@ public class Map {
             BPSRoom(grid_x, grid_y, 4, 5, 2, mapValue, 9, grid_x * grid_y / 4096 + 5);
 
 
-            BPSRoomOffsetted(grid_x, grid_y, 4, 1, 10, mapValue, 7, grid_x * grid_y / 8192 + 5,  8, 1);
+            BPSRoomOffsetted(grid_x, grid_y, 4, 1, 10, mapValue, 11, grid_x * grid_y / 8192 + 5,  8, 1);
             BPSRoomOffsetted(grid_x, grid_y, 4, 10, 1, mapValue, 7, grid_x * grid_y / 8192 + 5,  8, 1);
         }
         System.out.println("3");
@@ -231,6 +234,7 @@ public class Map {
         P_View.setPreserveRatio(true);
 
         root.getChildren().add(P_View);
+        start();
 
         //Circle test
 
@@ -268,13 +272,39 @@ public class Map {
     {
         return new Scene(addAnchorPane(root),720,720);
     }
-    public void start(){
+    private void start(){
+        int x = P.getX();
+        int y = P.getY();
         mapSis=new int[grid_x][grid_y];
         for (int i = 0; i < grid_x; i++) {
             for (int j = 0; j < grid_y; j++) {
-                mapSis[i][j]=12;
+                if(x-3 <= i && i <= x+3 && y-3 <= j && j <= y+3){
+                    mapSis[i][j]=mapValue[i][j];
+                    grid[i][j].setImage(mapImage[i][j]);
+                }else {
+                    mapSis[i][j] = 12;
+                    grid[i][j].setImage(sisImage);
+                }
             }
         }
+
+
+    }
+    public void update(int dir){
+        int old_x=P.getX();
+        int old_y=P.getY();
+
+        int new_x=P.getX()+dir/2;
+        int new_y=P.getY()+dir%2;
+        mapValue[old_x][old_y]=0;
+        mapValue[new_x][new_y]=3;
+        mapSis[old_x][old_y]=0;
+        mapSis[new_x][new_y]=3;
+        setP_View(new_x,new_y);
+        mapHeat[old_x][old_y] = shortestSeen(grid_x,grid_y,mapValue,old_x,old_y);
+        mapHeat[new_x][new_y] = shortestSeen(grid_x,grid_y,mapValue,new_x,new_y);
+        unSis(dir,new_x,new_y);
+
 
     }
     public void update(){
@@ -288,7 +318,8 @@ public class Map {
         mapSis[old_x][old_y]=0;
         mapSis[new_x][new_y]=3;
         setP_View(new_x,new_y);
-        mapHeat = addTemperature(this.grid_x,this.grid_y,this.mapValue);//remove for performance
+        mapHeat[old_x][old_y] = shortestSeen(grid_x,grid_y,mapValue,old_x,old_y);
+        mapHeat[new_x][new_y] = shortestSeen(grid_x,grid_y,mapValue,new_x,new_y);
         unSis(dir,new_x,new_y);
 
 
@@ -306,6 +337,7 @@ public class Map {
             int k=7*a+i*b   + x;
             int l=7*b+i*a   + y;
             mapSis[k][l]=mapValue[k][l];
+            grid[k][l].setImage(mapImage[k][l]);
         }
     }
     void setP_View(int x,int y){
@@ -315,14 +347,181 @@ public class Map {
 
     void addObject(int x,int y,int ID){
         switch (ID){
-            case 3:
+            case 2:
                 this.P = new Player(x,y);
+                this.P_View.setImage(P.getImage(0));
                 break;
             case 4:
-                if(x < this.grid_x/2)this.objects.add(new SummerMountain(x,y));
-                else this.objects.add(new WinterMountain(x,y));
+                if(x < this.grid_x/2) {
+                    SummerMountain temp =new SummerMountain(x, y);
+                    for (int i = x ; i < x+15; i++) {
+                        for (int j = y; j < y+15; j++) {
+                            mapImage[i][j]=temp.getImage((i-x)*15+(j-y));
+                        }
+                    }
+                    this.objects.add(temp);
+                }
+                else {
+                    WinterMountain temp =new WinterMountain(x, y);
+                    for (int i = x ; i < x+15; i++) {
+                        for (int j = y; j < y+15; j++) {
+                            mapImage[i][j]=temp.getImage((i-x)*15+(j-y));
+                        }
+                    }
+                    this.objects.add(temp);
+                }
+                break;
+            case 5:
+                if(x < this.grid_x/2) {
+                    SummerTree temp =new SummerTree(x, y);
+                    for (int i = x ; i < x+2; i++) {
+                        for (int j = y; j < y+2; j++) {
+                            mapImage[i][j]=temp.getImage((i-x)*2+(j-y));
+                        }
+                    }
+                    this.objects.add(temp);
+                }
+                else {
+                    WinterTree temp =new WinterTree(x, y);
+                    for (int i = x ; i < x+2; i++) {
+                        for (int j = y; j < y+2; j++) {
+                            mapImage[i][j]=temp.getImage((i-x)*2+(j-y));
+                        }
+                    }
+                    this.objects.add(temp);
+                }
+                break;
+            case 6:
+                if(x < this.grid_x/2) {
+                    SummerRock temp =new SummerRock(x, y);
+                    for (int i = x ; i < x+2; i++) {
+                        for (int j = y; j < y+2; j++) {
+                            mapImage[i][j]=temp.getImage((i-x)*2+(j-y));
+                        }
+                    }
+                    this.objects.add(temp);
+                }
+                else {
+                    WinterRock temp =new WinterRock(x, y);
+                    for (int i = x ; i < x+2; i++) {
+                        for (int j = y; j < y+2; j++) {
+                            mapImage[i][j]=temp.getImage((i-x)*2+(j-y));
+                        }
+                    }
+                    this.objects.add(temp);
+                }
+                break;
+            case 7:
+                if(x < this.grid_x/2) {
+                    SummerWall temp =new SummerWall(x, y);
+                    for (int i = x ; i < x+10; i++) {
+                        for (int j = y; j < y+1; j++) {
+                            mapImage[i][j]=temp.getImage((i-x)*1+(j-y));
+                        }
+                    }
+                    this.objects.add(temp);
+                }
+                else {
+                    WinterWall temp =new WinterWall(x, y);
+                    for (int i = x ; i < x+10; i++) {
+                        for (int j = y; j < y+1; j++) {
+                            mapImage[i][j]=temp.getImage((i-x)*1+(j-y));
+                        }
+                    }
+                    this.objects.add(temp);
+                }
+                break;
+            case 9:
+            {
+                WritableImage writableImage = new WritableImage(64,64);
+                PixelWriter writer = writableImage.getPixelWriter();
+                paint(0,0,64,Color.RED,writer);
+                Bee temp = new Bee(x, y);
+                for (int i = x; i < x + 5; i++) {
+                    for (int j = y; j < y + 2; j++) {
+                        mapImage[i][j] = writableImage;
+                    }
+                }
+                this.objects.add(temp);
+            }
                 break;
 
+            case 10:
+
+            {
+                WritableImage writableImage = new WritableImage(64,64);
+                PixelWriter writer = writableImage.getPixelWriter();
+                paint(0,0,64,Color.RED,writer);
+                Bird temp = new Bird(x, y);
+                for (int i = x; i < x + 2; i++) {
+                    for (int j = y; j < y + 7; j++) {
+
+                        mapImage[i][j] = writableImage;
+                    }
+                }
+                this.objects.add(temp);
+            }
+            break;
+            case 11:
+                if(x < this.grid_x/2) {
+                    SummerWallV temp =new SummerWallV(x, y);
+                    for (int i = x ; i < x+1; i++) {
+                        for (int j = y; j < y+10; j++) {
+                            mapImage[i][j]=temp.getImage((i-x)*10+(j-y));
+                        }
+                    }
+                    this.objects.add(temp);
+                }
+                else {
+                    WinterWallV temp =new WinterWallV(x, y);
+                    for (int i = x ; i < x+1; i++) {
+                        for (int j = y; j < y+10; j++) {
+                            mapImage[i][j]=temp.getImage((i-x)*10+(j-y));
+                        }
+                    }
+                    this.objects.add(temp);
+                }
+                break;
+            case 13:
+                if(x < this.grid_x/2) {
+                    SummerTree2 temp =new SummerTree2(x, y);
+                    for (int i = x ; i < x+4; i++) {
+                        for (int j = y; j < y+4; j++) {
+                            mapImage[i][j]=temp.getImage((i-x)*4+(j-y));
+                        }
+                    }
+                    this.objects.add(temp);
+                }
+                else {
+                    WinterTree2 temp =new WinterTree2(x, y);
+                    for (int i = x ; i < x+4; i++) {
+                        for (int j = y; j < y+4; j++) {
+                            mapImage[i][j]=temp.getImage((i-x)*4+(j-y));
+                        }
+                    }
+                    this.objects.add(temp);
+                }
+                break;
+            case 14:
+                if(x < this.grid_x/2) {
+                    SummerRock2 temp =new SummerRock2(x, y);
+                    for (int i = x ; i < x+4; i++) {
+                        for (int j = y; j < y+4; j++) {
+                            mapImage[i][j]=temp.getImage((i-x)*4+(j-y));
+                        }
+                    }
+                    this.objects.add(temp);
+                }
+                else {
+                    WinterRock2 temp =new WinterRock2(x, y);
+                    for (int i = x ; i < x+4; i++) {
+                        for (int j = y; j < y+4; j++) {
+                            mapImage[i][j]=temp.getImage((i-x)*4+(j-y));
+                        }
+                    }
+                    this.objects.add(temp);
+                }
+                break;
         }
     }
     public void toggle(){
@@ -332,7 +531,7 @@ public class Map {
                 state=1;
                 break;
             case 1:
-                paintCanvas(mapValue,miniWriter,grid_x,grid_y,miniSize,offset);
+                paintCanvas(mapSis,miniWriter,grid_x,grid_y,miniSize,offset);
                 state=2;
                 break;
             case 2:
@@ -452,6 +651,8 @@ public class Map {
             case 10 -> Color.LIGHTSKYBLUE;//bird
             case 11 -> Color.DARKVIOLET;//WallV
             case 12 -> Color.SLATEGRAY;//Sis
+            case 13 -> Color.DARKGREEN;//Tree2
+            case 14 -> Color.DARKSLATEGRAY;//Rock2
             case 40 -> Color.rgb(100,100,100);
             case 41 -> Color.rgb(110,110,110);
             case 42 -> Color.rgb(120,120,120);
@@ -507,7 +708,8 @@ public class Map {
                         sy=p.y;
                         ey=p.y+size*2;
                         if(ex < grid_x && ey < grid_y && checkSpace(map,sx,ex,sy,ey,empties)  ){
-                            fillMatrix(map,sx,ex,sy,ey,5);
+                            addObject(sx,sy,size==2?13:5);
+                            fillMatrix(map,sx,ex,sy,ey,size==2?13:5);
                             break;
                         }
 
@@ -517,7 +719,8 @@ public class Map {
                         sy=p.y;
                         ey=p.y+size*2;
                         if(sx > 0 && ey < grid_y && checkSpace(map,sx,ex,sy,ey,empties)  ){
-                            fillMatrix(map,sx,ex,sy,ey,5);
+                            addObject(sx,sy,size==2?13:5);
+                            fillMatrix(map,sx,ex,sy,ey,size==2?13:5);
                             break;
                         }
                     case 2:
@@ -526,7 +729,8 @@ public class Map {
                         sy=p.y+1-size*2;
                         ey=p.y+1;
                         if(sx > 0 && sy > 0 && checkSpace(map,sx,ex,sy,ey,empties)  ){
-                            fillMatrix(map,sx,ex,sy,ey,5);
+                            addObject(sx,sy,size==2?13:5);
+                            fillMatrix(map,sx,ex,sy,ey,size==2?13:5);
                             break;
                         }
                     case 3:
@@ -535,7 +739,8 @@ public class Map {
                         sy=p.y+1-size*2;
                         ey=p.y+1;
                         if(ex < grid_x && sy > 0 && checkSpace(map,sx,ex,sy,ey,empties)  ){
-                            fillMatrix(map,sx,ex,sy,ey,5);
+                            addObject(sx,sy,size==2?13:5);
+                            fillMatrix(map,sx,ex,sy,ey,size==2?13:5);
                             break;
                         }
                     default:
@@ -563,7 +768,8 @@ public class Map {
                         sy=p.y;
                         ey=p.y+size*2;
                         if(ex < grid_x && ey < grid_y && checkSpace(map,sx,ex,sy,ey,empties)  ){
-                            fillMatrix(map,sx,ex,sy,ey,6);
+                            addObject(sx,sy,size==2?14:6);
+                            fillMatrix(map,sx,ex,sy,ey,size==2?14:6);
                             break;
                         }
 
@@ -573,7 +779,8 @@ public class Map {
                         sy=p.y;
                         ey=p.y+size*2;
                         if(sx > 0 && ey < grid_y && checkSpace(map,sx,ex,sy,ey,empties)  ){
-                            fillMatrix(map,sx,ex,sy,ey,6);
+                            addObject(sx,sy,size==2?14:6);
+                            fillMatrix(map,sx,ex,sy,ey,size==2?14:6);
                             break;
                         }
                     case 2:
@@ -582,7 +789,8 @@ public class Map {
                         sy=p.y+1-size*2;
                         ey=p.y+1;
                         if(sx > 0 && sy > 0 && checkSpace(map,sx,ex,sy,ey,empties)  ){
-                            fillMatrix(map,sx,ex,sy,ey,6);
+                            addObject(sx,sy,size==2?14:6);
+                            fillMatrix(map,sx,ex,sy,ey,size==2?14:6);
                             break;
                         }
                     case 3:
@@ -591,7 +799,8 @@ public class Map {
                         sy=p.y+1-size*2;
                         ey=p.y+1;
                         if(ex < grid_x && sy > 0 && checkSpace(map,sx,ex,sy,ey,empties)  ){
-                            fillMatrix(map,sx,ex,sy,ey,6);
+                            addObject(sx,sy,size==2?14:6);
+                            fillMatrix(map,sx,ex,sy,ey,size==2?14:6);
                             break;
                         }
                     default:

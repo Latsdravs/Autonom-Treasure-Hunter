@@ -177,6 +177,14 @@ public class startSceneController {
                     } else if (event.getCode() == KeyCode.M) {
                         toggleMap(theStage);
                         if(fullscreen) theStage.setFullScreen(true);
+                    }else if(event.getCode() == KeyCode.W){
+                        theMap.update(-2);
+                    }else if(event.getCode() == KeyCode.A){
+                        theMap.update(-1);
+                    }else if(event.getCode() == KeyCode.S){
+                        theMap.update(1);
+                    }else if(event.getCode() == KeyCode.D){
+                        theMap.update(2);
                     }
 
                 });
