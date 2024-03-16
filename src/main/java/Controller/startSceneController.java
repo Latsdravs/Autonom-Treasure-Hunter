@@ -5,15 +5,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import com.example.demo.Map;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 
 import java.io.IOException;
@@ -146,7 +144,31 @@ public class startSceneController {
 
             Scene mapScene = theMap.getMap();
             Scene miniMapScene = theMap.getMiniMap();
+            AnchorPane anchorPane = (AnchorPane) theMap.getMiniMap().getRoot();
+            ScrollPane scrollPane = erisimYontemi2(anchorPane);
+            System.out.println(scrollPane);
+            double step = 0.02; // Kaydırma adım miktarı
+            scrollPane.setVvalue(0); // Dikey değer için (0.0 - 1.0 arası)
+            scrollPane.setHvalue(0); // Yatay değer için (0.0 - 1.0 arası)\
 
+            anchorPane.setOnKeyPressed(event -> {
+                switch (event.getCode()) {
+                    case W:
+                        scrollPane.setVvalue(scrollPane.getVvalue() - step);
+                        break;
+                    case S:
+                        scrollPane.setVvalue(scrollPane.getVvalue() + step);
+                        break;
+                    case A:
+                        scrollPane.setHvalue(scrollPane.getHvalue() - step);
+                        break;
+                    case D:
+                        scrollPane.setHvalue(scrollPane.getHvalue() + step);
+                        break;
+                    default:
+                        break;
+                }
+            });
 
 
                 mapScene.setOnKeyPressed(event -> {
@@ -156,7 +178,11 @@ public class startSceneController {
                         toggleMap(theStage);
                         if(fullscreen) theStage.setFullScreen(true);
                     }
+
                 });
+
+
+
 
 
                 miniMapScene.setOnKeyPressed(event -> {
@@ -164,9 +190,10 @@ public class startSceneController {
                         toggleFullScreen(theStage);
                  } else if (event.getCode() == KeyCode.M) {
                         toggleMap(theStage);
-                        if(fullscreen) theStage.setFullScreen(true);
+
                     }
                 });
+
 
 
             theStage.setScene(mapScene);
@@ -174,5 +201,14 @@ public class startSceneController {
         } else {
             showAlert("Uyarı", "Harita Eksik", "Lütfen önce harita oluşturun.");
         }
+    }
+    private ScrollPane erisimYontemi2(AnchorPane anchorPane) {
+
+
+        System.out.println("Yöntem 2 ile erişilen elemanlar:");
+        for (javafx.scene.Node node : anchorPane.getChildren()) {
+            return (ScrollPane) node;
+        }
+        return null;
     }
 }
