@@ -7,7 +7,7 @@ public class SummerMountain extends Mountain{
         super( x,y);
         for (int i = 0; i < this.size; i++) {
 
-            this.images[0] = new Image(getClass().getResourceAsStream("/Objects/assets/summer-mountain/row-"+((i/15)+1)+"-column-"+((i%15)+1)+".png"));
+            this.images[i] = new Image(getClass().getResourceAsStream("/Objects/assets/summer-mountain/row-"+((i/15)+1)+"-column-"+((i%15)+1)+".png"));
         }
     }
 }

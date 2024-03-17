@@ -432,7 +432,10 @@ public class Map {
         mapValue[new_x][new_y]=2;
         mapSis[old_x][old_y]=0;
         mapSis[new_x][new_y]=2;
-        setP_View(new_x,new_y);
+
+
+        crossImage(old_x,old_y,new_x,new_y);
+        crossImageMini(old_x,old_y,new_x,new_y);
 
         unSis(dir,new_x,new_y);
 
@@ -470,6 +473,7 @@ public class Map {
             case 2:
                 System.out.println("P not null");
                 this.P = new Player(x,y);
+                this.P.setVision(mapSis);
                 mapImage[x][y]=P.getImage(0);
                 break;
             case 4:

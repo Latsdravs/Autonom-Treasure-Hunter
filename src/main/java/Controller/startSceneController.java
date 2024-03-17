@@ -216,7 +216,7 @@ public class startSceneController {
                     theMap.update(1);
                 } else if (event.getCode()==KeyCode.H) {
                     theMap.update(-2);
-                } else if (event.getCode()==KeyCode.L) {
+                } else if (event.getCode()==KeyCode.K) {
                     theMap.update(2);
                 }
             });
