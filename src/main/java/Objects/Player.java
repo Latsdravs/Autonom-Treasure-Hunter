@@ -27,6 +27,12 @@ public class Player extends GameObject {
         this.vision=vision;
     }
     public int move(){return 0;}
+    public int move(int dir){
+        this.loc = new Location(loc.x+dir/2,loc.y+dir%2);
+        pastLocations.add(loc.duplicate());
+        return dir;
+    }
+
 
 
 }

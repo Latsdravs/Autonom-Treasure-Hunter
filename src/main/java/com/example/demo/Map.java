@@ -37,10 +37,18 @@ public class Map {
     int[][] mapHeat;
     int[][] mapSis;
     Image[][] mapImage;
+    Image[][] miniImage;
+    Image miniSisImage;
     Image sisImage;
-    PixelWriter miniWriter;
+
+
+
+
+
     ImageView[][] grid;
+    ImageView[][] gridMini;
     ImageView P_View;
+    ImageView miniView;
 
     class Point{
 
@@ -57,6 +65,7 @@ public class Map {
     public Map(int grid_x, int grid_y, int size, int width, int offset, int miniSize) {
         this.P_View=new ImageView();
         this.mapImage=new Image[grid_x][grid_y];
+        this.miniImage=new Image[grid_x][grid_y];
         this.mapSis = new int[grid_x][grid_y];
         this.mapValue = new int[grid_x][grid_y];
         this.grid_x = grid_x;
@@ -65,6 +74,8 @@ public class Map {
         this.width = width;
         this.offset = offset;
         this.miniSize = miniSize;
+        this.sisImage = getImageForMap(12,size);
+        this.miniSisImage = getImageForMap(12,miniSize);
         Group mini = new Group();
         //Basic Objects
         {
@@ -85,8 +96,6 @@ public class Map {
         System.out.println("3");
 
 
-
-        int[] IDs = new int[]{4};
         int[] empties = new int[]{0,70153,8};
 
         NoiseFill(grid_x,grid_y,62,mapValue);
@@ -103,18 +112,58 @@ public class Map {
 
 
         System.out.println("4");
+
+        {
+
+            for (int i = 0; i <= grid_x; i++) {
+                Line temp = new Line();
+                temp.setStartX(i * (miniSize + 1 ));
+                temp.setEndX(i * (miniSize + 1 ));
+
+                temp.setStartY(0);
+                temp.setEndY((miniSize + 1 ) * grid_y);
+                temp.setStroke(Color.GAINSBORO);
+                temp.setStrokeWidth(1 );
+                mini.getChildren().add(temp);
+
+            }
+            for (int j = 0; j <= grid_y; j++) {
+                Line temp = new Line();
+                temp.setStartX(0);
+                temp.setEndX((miniSize + 1 ) * grid_x);
+
+                temp.setStartY(j * (miniSize + 1 ));
+                temp.setEndY(j * (miniSize + 1 ));
+
+                temp.setStroke(Color.GAINSBORO);
+                temp.setStrokeWidth(1 );
+                mini.getChildren().add(temp);
+
+            }
+        }
+        this.gridMini=new ImageView[grid_x][grid_y];
+        for (int i = 0; i < grid_x; i++) {
+            for (int j = 0; j < grid_y; j++) {
+                ImageView temp=new ImageView();
+                temp.setFitHeight(miniSize);
+                temp.setPreserveRatio(true);
+                temp.setX(1+i*(miniSize+1));
+                temp.setY(1+j*(miniSize+1));
+                mini.getChildren().add(temp);
+                gridMini[i][j] = temp;
+            }
+        }
+
         //paintSides(IDs,mapValue,empties,542);
 
-        WritableImage colorMapped = new WritableImage(offset*2+1+grid_x*(miniSize+1),offset*2+1+grid_y*(miniSize+1));
 
-        this.miniWriter = colorMapped.getPixelWriter();
 
-        this.mapHeat = addTemperature(grid_x,grid_y,mapValue);
-        paintCanvas(mapValue,miniWriter,grid_x,grid_y,miniSize,offset);
+
+
 
 
         System.out.println("Done deal");
-        ImageView currentMap = new ImageView(colorMapped);
+
         // istatistik bilgi
         {
             HashMap<String, Integer> istatistik = HashMap.newHashMap(12);
@@ -182,7 +231,7 @@ public class Map {
         }
 
         miniMap = addScene(mini);
-        mini.getChildren().add(currentMap);
+
 
         Group root = new Group();
         //Lines
@@ -235,7 +284,10 @@ public class Map {
         P_View.setFitHeight(size);
         P_View.setPreserveRatio(true);
 
+
         root.getChildren().add(P_View);
+        prepareMap();
+
         start();
 
         //Circle test
@@ -277,34 +329,95 @@ public class Map {
     private void start(){
         int x = P.getX();
         int y = P.getY();
-        mapSis=new int[grid_x][grid_y];
+
+
         for (int i = 0; i < grid_x; i++) {
             for (int j = 0; j < grid_y; j++) {
                 if(x-3 <= i && i <= x+3 && y-3 <= j && j <= y+3){
-                    mapSis[i][j]=mapValue[i][j];
+                    gridMini[i][j].setImage(miniImage[i][j]);
                     grid[i][j].setImage(mapImage[i][j]);
                 }else {
-                    mapSis[i][j] = 12;
+                    gridMini[i][j].setImage(miniSisImage);
                     grid[i][j].setImage(sisImage);
                 }
             }
         }
 
 
+
+
+
+    }
+    void prepareMap(){
+        preprepareMap();
+        for (int i = 0; i < grid_x; i++) {
+            for (int j = 0; j < grid_y; j++) {
+                miniImage[i][j]=getImageForMap(mapValue[i][j],miniSize);
+            }
+        }
+    }
+
+    private void preprepareMap(){
+        int x = P.getX();
+        int y = P.getY();
+        int[] empties = new int[]{0,70153,8,542};
+
+        mapSis=new int[grid_x][grid_y];
+        for (int i = 0; i < grid_x; i++) {
+            for (int j = 0; j < grid_y; j++) {
+                if(isHere(empties,mapValue[i][j]))mapValue[i][j]=0;
+                if(x-3 <= i && i <= x+3 && y-3 <= j && j <= y+3){
+                    mapSis[i][j]=mapValue[i][j];
+                }else {
+                    mapSis[i][j] = 12;
+
+                }
+            }
+        }
+
+
+
+
+
+    }
+    private void crossImage(int x1,int y1,int x2,int y2){
+        Image temp = mapImage[x1][y1];
+        mapImage[x1][y1] = mapImage[x2][y2];
+        mapImage[x2][y2] = temp;
+        grid[x1][y1].setImage(mapImage[x1][y1]);
+        grid[x2][y2].setImage(mapImage[x2][y2]);
+
+
+        /*temp = miniImage[x1][y1];
+        miniImage[x1][y1] = miniImage[x2][y2];
+        mapImage[x2][y2] = temp;
+        gridMini[x1][y1].setImage(miniImage[x1][y1]);
+        gridMini[x2][y2].setImage(miniImage[x2][y2]);*/
+
+
+    }
+    private void crossImageMini(int x1,int y1,int x2,int y2){
+        Image temp = miniImage[x1][y1];
+        miniImage[x1][y1] = miniImage[x2][y2];
+        miniImage[x2][y2] = temp;
+        gridMini[x1][y1].setImage(miniImage[x1][y1]);
+        gridMini[x2][y2].setImage(miniImage[x2][y2]);
+
+
     }
     public void update(int dir){
         int old_x=P.getX();
         int old_y=P.getY();
-
-        int new_x=P.getX()+dir/2;
-        int new_y=P.getY()+dir%2;
+        P.move(dir);
+        int new_x=P.getX();
+        int new_y=P.getY();
         mapValue[old_x][old_y]=0;
         mapValue[new_x][new_y]=3;
         mapSis[old_x][old_y]=0;
         mapSis[new_x][new_y]=3;
-        setP_View(new_x,new_y);
-        mapHeat[old_x][old_y] = shortestSeen(grid_x,grid_y,mapValue,old_x,old_y);
-        mapHeat[new_x][new_y] = shortestSeen(grid_x,grid_y,mapValue,new_x,new_y);
+        crossImage(old_x,old_y,new_x,new_y);
+        crossImageMini(old_x,old_y,new_x,new_y);
+
         unSis(dir,new_x,new_y);
 
 
@@ -316,13 +429,14 @@ public class Map {
         int new_x=P.getX();
         int new_y=P.getY();
         mapValue[old_x][old_y]=0;
-        mapValue[new_x][new_y]=3;
+        mapValue[new_x][new_y]=2;
         mapSis[old_x][old_y]=0;
-        mapSis[new_x][new_y]=3;
+        mapSis[new_x][new_y]=2;
         setP_View(new_x,new_y);
-        mapHeat[old_x][old_y] = shortestSeen(grid_x,grid_y,mapValue,old_x,old_y);
-        mapHeat[new_x][new_y] = shortestSeen(grid_x,grid_y,mapValue,new_x,new_y);
+
         unSis(dir,new_x,new_y);
+
+
 
 
     }
@@ -333,13 +447,17 @@ public class Map {
     //LEFT -1  0 -- -2
     // MAYBE DIFFERENT
     void unSis(int dir,int x,int y){
+        int[] empties = new int[]{0,70153,8};
         int a=dir/2;
         int b=dir%2;
         for (int i = -3; i <= 3; i++) {
-            int k=7*a+i*b   + x;
-            int l=7*b+i*a   + y;
-            mapSis[k][l]=mapValue[k][l];
-            grid[k][l].setImage(mapImage[k][l]);
+            int k=3*a+i*b   + x;
+            int l=3*b+i*a   + y;
+            if(0 <= k && k < grid_x && 0 <= l && l < grid_y) {
+                mapSis[k][l] = mapValue[k][l];
+                gridMini[k][l].setImage(miniImage[k][l]);
+                grid[k][l].setImage(mapImage[k][l]);
+            }
         }
     }
     void setP_View(int x,int y){
@@ -352,14 +470,14 @@ public class Map {
             case 2:
                 System.out.println("P not null");
                 this.P = new Player(x,y);
-                this.P_View.setImage(P.getImage(0));
+                mapImage[x][y]=P.getImage(0);
                 break;
             case 4:
                 if(x < this.grid_x/2) {
                     SummerMountain temp =new SummerMountain(x, y);
                     for (int i = x ; i < x+15; i++) {
                         for (int j = y; j < y+15; j++) {
-                            mapImage[i][j]=temp.getImage((i-x)*15+(j-y));
+                            mapImage[i][j]=temp.getImage((i-x)+(j-y)*15);
                         }
                     }
                     this.objects.add(temp);
@@ -368,7 +486,7 @@ public class Map {
                     WinterMountain temp =new WinterMountain(x, y);
                     for (int i = x ; i < x+15; i++) {
                         for (int j = y; j < y+15; j++) {
-                            mapImage[i][j]=temp.getImage((i-x)*15+(j-y));
+                            mapImage[i][j]=temp.getImage((i-x)+(j-y)*15);
                         }
                     }
                     this.objects.add(temp);
@@ -379,7 +497,7 @@ public class Map {
                     SummerTree temp =new SummerTree(x, y);
                     for (int i = x ; i < x+2; i++) {
                         for (int j = y; j < y+2; j++) {
-                            mapImage[i][j]=temp.getImage((i-x)*2+(j-y));
+                            mapImage[i][j]=temp.getImage((i-x)+(j-y)*2);
                         }
                     }
                     this.objects.add(temp);
@@ -388,7 +506,7 @@ public class Map {
                     WinterTree temp =new WinterTree(x, y);
                     for (int i = x ; i < x+2; i++) {
                         for (int j = y; j < y+2; j++) {
-                            mapImage[i][j]=temp.getImage((i-x)*2+(j-y));
+                            mapImage[i][j]=temp.getImage((i-x)+(j-y)*2);
                         }
                     }
                     this.objects.add(temp);
@@ -399,7 +517,7 @@ public class Map {
                     SummerRock temp =new SummerRock(x, y);
                     for (int i = x ; i < x+2; i++) {
                         for (int j = y; j < y+2; j++) {
-                            mapImage[i][j]=temp.getImage((i-x)*2+(j-y));
+                            mapImage[i][j]=temp.getImage((i-x)+(j-y)*2);
                         }
                     }
                     this.objects.add(temp);
@@ -408,7 +526,7 @@ public class Map {
                     WinterRock temp =new WinterRock(x, y);
                     for (int i = x ; i < x+2; i++) {
                         for (int j = y; j < y+2; j++) {
-                            mapImage[i][j]=temp.getImage((i-x)*2+(j-y));
+                            mapImage[i][j]=temp.getImage((i-x)+(j-y)*2);
                         }
                     }
                     this.objects.add(temp);
@@ -419,7 +537,7 @@ public class Map {
                     SummerWall temp =new SummerWall(x, y);
                     for (int i = x ; i < x+10; i++) {
                         for (int j = y; j < y+1; j++) {
-                            mapImage[i][j]=temp.getImage((i-x)*1+(j-y));
+                            mapImage[i][j]=temp.getImage((i-x)+(j-y)*10);
                         }
                     }
                     this.objects.add(temp);
@@ -428,7 +546,7 @@ public class Map {
                     WinterWall temp =new WinterWall(x, y);
                     for (int i = x ; i < x+10; i++) {
                         for (int j = y; j < y+1; j++) {
-                            mapImage[i][j]=temp.getImage((i-x)*1+(j-y));
+                            mapImage[i][j]=temp.getImage((i-x)+(j-y)*10);
                         }
                     }
                     this.objects.add(temp);
@@ -470,7 +588,7 @@ public class Map {
                     SummerWallV temp =new SummerWallV(x, y);
                     for (int i = x ; i < x+1; i++) {
                         for (int j = y; j < y+10; j++) {
-                            mapImage[i][j]=temp.getImage((i-x)*10+(j-y));
+                            mapImage[i][j]=temp.getImage((i-x)+(j-y)*1);
                         }
                     }
                     this.objects.add(temp);
@@ -479,7 +597,7 @@ public class Map {
                     WinterWallV temp =new WinterWallV(x, y);
                     for (int i = x ; i < x+1; i++) {
                         for (int j = y; j < y+10; j++) {
-                            mapImage[i][j]=temp.getImage((i-x)*10+(j-y));
+                            mapImage[i][j]=temp.getImage((i-x)+(j-y)*1);
                         }
                     }
                     this.objects.add(temp);
@@ -490,7 +608,7 @@ public class Map {
                     SummerTree2 temp =new SummerTree2(x, y);
                     for (int i = x ; i < x+4; i++) {
                         for (int j = y; j < y+4; j++) {
-                            mapImage[i][j]=temp.getImage((i-x)*4+(j-y));
+                            mapImage[i][j]=temp.getImage((i-x)+(j-y)*4);
                         }
                     }
                     this.objects.add(temp);
@@ -499,7 +617,7 @@ public class Map {
                     WinterTree2 temp =new WinterTree2(x, y);
                     for (int i = x ; i < x+4; i++) {
                         for (int j = y; j < y+4; j++) {
-                            mapImage[i][j]=temp.getImage((i-x)*4+(j-y));
+                            mapImage[i][j]=temp.getImage((i-x)+(j-y)*4);
                         }
                     }
                     this.objects.add(temp);
@@ -510,7 +628,7 @@ public class Map {
                     SummerRock2 temp =new SummerRock2(x, y);
                     for (int i = x ; i < x+4; i++) {
                         for (int j = y; j < y+4; j++) {
-                            mapImage[i][j]=temp.getImage((i-x)*4+(j-y));
+                            mapImage[i][j]=temp.getImage((i-x)+(j-y)*4);
                         }
                     }
                     this.objects.add(temp);
@@ -519,7 +637,7 @@ public class Map {
                     WinterRock2 temp =new WinterRock2(x, y);
                     for (int i = x ; i < x+4; i++) {
                         for (int j = y; j < y+4; j++) {
-                            mapImage[i][j]=temp.getImage((i-x)*4+(j-y));
+                            mapImage[i][j]=temp.getImage((i-x)+(j-y)*4);
                         }
                     }
                     this.objects.add(temp);
@@ -527,22 +645,13 @@ public class Map {
                 break;
         }
     }
-    public void toggle(){
-        switch (this.state){
-            case 0:
-                paintCanvas(mapHeat,miniWriter,grid_x,grid_y,miniSize,offset);
-                state=1;
-                break;
-            case 1:
-                paintCanvas(mapSis,miniWriter,grid_x,grid_y,miniSize,offset);
-                state=2;
-                break;
-            case 2:
-                paintCanvas(mapValue,miniWriter,grid_x,grid_y,miniSize,offset);
-                state=0;
-                break;
-        }
+    Image getImageForMap(int ID,int size){
+        WritableImage temp = new WritableImage(size,size);
+        PixelWriter writer = temp.getPixelWriter();
+        paint(0,0,size,ID,writer);
+        return temp;
     }
+
     void paint(int i,int j,int size,Color color,PixelWriter writer){
         for (int k = 0; k < size; k++) {
             for (int l = 0; l < size; l++) {
@@ -558,9 +667,6 @@ public class Map {
         }
     }
 
-    void paintMini(int i,int j,int miniSize,int ID,PixelWriter writer,int offset){
-        paint(i*(miniSize+1)+1+offset,j*(miniSize+1)+1+offset,miniSize,ID,writer);
-    }
     boolean isHere(int[] array,int value){
         boolean empty = false;
         for (int check:
@@ -577,21 +683,30 @@ public class Map {
         return empty;
 
     }
+
     void paintCanvas(int[][] map,PixelWriter writer,int grid_x,int grid_y,int miniSize,int sizedOffset){
         int screen_x = grid_x*(miniSize+1)+1+sizedOffset*2;
         int screen_y = grid_y*(miniSize+1)+1+sizedOffset*2;
+        System.out.println(" i am in");
         for (int i = 0; i < screen_x; i++) {
             for (int j = 0; j <screen_y ; j++) {
+
 
                 if(i>=sizedOffset && i<screen_x-sizedOffset && j>=sizedOffset && j<screen_y-sizedOffset){
                     int k = i-sizedOffset;
                     int l = j-sizedOffset;
 
                     if(k%(miniSize+1)==0 || l%(miniSize+1)==0){
+                        long start = System.nanoTime();
                         writer.setColor(i,j,Color.DARKGRAY);
+                        long end = System.nanoTime();
+                        System.out.println(end-start+" point paint");
                     } else if (k%(miniSize+1)==1 && l%(miniSize+1)==1) {
+                        long start = System.nanoTime();
                         int tempID=map[k/(miniSize+1)][l/(miniSize+1)];
                         paint(i,j,miniSize ,tempID,writer);
+                        long end = System.nanoTime();
+                        System.out.println(end-start+" 64 paint");
                     }
 
 
@@ -667,7 +782,7 @@ public class Map {
         int maxInt=12;
         double max = 12;
         value=maxInt+6-value;
-        if(value > maxInt)return Color.DARKRED;
+        if(value > maxInt)return Color.LIGHTYELLOW;
         else if(value >= 0 )
             return Color.rgb((int)(255.0/max*value),(int)(255.0/max*value),(int)(255.0/max*value));
         return Color.BLACK;
@@ -1155,7 +1270,7 @@ public class Map {
 
         int steps_x = Integer.highestOneBit(grid_x)>>expSpace;
         int steps_y = Integer.highestOneBit(grid_y)>>expSpace;
-        ArrayList<roomKey> rooms = new ArrayList<>();
+
         for (int r = 0; r < iteration; r++) {
             Random random = new Random();
             int theStep_x = random.nextInt(steps_x);//steps_x-1 e eşitken dene
@@ -1389,12 +1504,7 @@ public class Map {
         final int distance;
         final roomKey A;
         final roomKey B;
-        public boolean sameWay(){
-            if(A.roaded < B.roaded)B.roaded = A.roaded;
-            else if(B.roaded < A.roaded)A.roaded = B.roaded;
-            else return true;
-            return false;
-        }
+
 
         public distanceKey( roomKey a, roomKey b) {
 

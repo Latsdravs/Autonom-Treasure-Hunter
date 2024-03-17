@@ -145,66 +145,81 @@ public class startSceneController {
 
             Scene mapScene = theMap.getMap();
             Scene miniMapScene = theMap.getMiniMap();
+            AnchorPane miniAnchorPane = (AnchorPane) theMap.getMiniMap().getRoot();
+            ScrollPane miniScrollPane = erisimYontemi2(miniAnchorPane);
+            double miniStep = 0.02; // Kaydırma adım miktarı
+            miniScrollPane.setVvalue(0); // Dikey değer için (0.0 - 1.0 arası)
+            miniScrollPane.setHvalue(0); // Yatay değer için (0.0 - 1.0 arası)
+
+            miniAnchorPane.setOnKeyPressed(event -> {
+                switch (event.getCode()) {
+                    case W:
+                        miniScrollPane.setVvalue(miniScrollPane.getVvalue() - miniStep);
+                        break;
+                    case S:
+                        miniScrollPane.setVvalue(miniScrollPane.getVvalue() + miniStep);
+                        break;
+                    case A:
+                        miniScrollPane.setHvalue(miniScrollPane.getHvalue() - miniStep);
+                        break;
+                    case D:
+                        miniScrollPane.setHvalue(miniScrollPane.getHvalue() + miniStep);
+                        break;
+
+                    default:
+                        break;
+                }
+            });
             AnchorPane anchorPane = (AnchorPane) theMap.getMiniMap().getRoot();
             ScrollPane scrollPane = erisimYontemi2(anchorPane);
             double step = 0.02; // Kaydırma adım miktarı
             scrollPane.setVvalue(0); // Dikey değer için (0.0 - 1.0 arası)
             scrollPane.setHvalue(0); // Yatay değer için (0.0 - 1.0 arası)
 
-            anchorPane.setOnKeyPressed(event -> {
-                switch (event.getCode()) {
-                    case W:
-                        scrollPane.setVvalue(scrollPane.getVvalue() - step);
-                        break;
-                    case S:
-                        scrollPane.setVvalue(scrollPane.getVvalue() + step);
-                        break;
-                    case A:
-                        scrollPane.setHvalue(scrollPane.getHvalue() - step);
-                        break;
-                    case D:
-                        scrollPane.setHvalue(scrollPane.getHvalue() + step);
-                        break;
-                    default:
-                        break;
+            mapScene.setOnKeyPressed(event -> {
+                if (event.getCode() == KeyCode.F) {
+                    toggleFullScreen(theStage);
+                } else if (event.getCode() == KeyCode.M) {
+                    toggleMap(theStage);
+                    if(fullscreen) theStage.setFullScreen(true);
+                }else if(event.getCode() == KeyCode.W){
+                    theMap.update(-1);
+                }else if(event.getCode() == KeyCode.A){
+                    theMap.update(-2);
+                }else if(event.getCode() == KeyCode.S){
+                    theMap.update(1);
+                }else if(event.getCode() == KeyCode.D){
+                    theMap.update(2);
+                } else if (event.getCode()==KeyCode.SPACE) {
+
                 }
+
             });
 
 
-                mapScene.setOnKeyPressed(event -> {
-                    if (event.getCode() == KeyCode.F) {
-                        toggleFullScreen(theStage);
-                    } else if (event.getCode() == KeyCode.M) {
-                        toggleMap(theStage);
-                        if(fullscreen) theStage.setFullScreen(true);
-                    }else if(event.getCode() == KeyCode.W){
-                        theMap.update(-2);
-                    }else if(event.getCode() == KeyCode.A){
-                        theMap.update(-1);
-                    }else if(event.getCode() == KeyCode.S){
-                        theMap.update(1);
-                    }else if(event.getCode() == KeyCode.D){
-                        theMap.update(2);
-                    } else if (event.getCode()==KeyCode.SPACE) {
-                        
-                    }
-
-                });
 
 
 
+            miniMapScene.setOnKeyPressed(event -> {
+                if (event.getCode() == KeyCode.F) {
+                    toggleFullScreen(theStage);
+                } else if (event.getCode() == KeyCode.M) {
+                    toggleMap(theStage);
+                    if(fullscreen) theStage.setFullScreen(true);
+                } else if (event.getCode() == KeyCode.T) {
+
+                } else if (event.getCode()==KeyCode.U) {
+                    theMap.update(-1);
 
 
-                miniMapScene.setOnKeyPressed(event -> {
-                    if (event.getCode() == KeyCode.F) {
-                        toggleFullScreen(theStage);
-                 } else if (event.getCode() == KeyCode.M) {
-                        toggleMap(theStage);
-                        if(fullscreen) theStage.setFullScreen(true);
-                    } else if (event.getCode() == KeyCode.T) {
-                        theMap.toggle();
-                    }
-                });
+                } else if (event.getCode()==KeyCode.J) {
+                    theMap.update(1);
+                } else if (event.getCode()==KeyCode.H) {
+                    theMap.update(-2);
+                } else if (event.getCode()==KeyCode.L) {
+                    theMap.update(2);
+                }
+            });
 
 
 
