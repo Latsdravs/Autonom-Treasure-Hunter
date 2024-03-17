@@ -15,6 +15,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -42,7 +43,10 @@ public class startSceneController {
     }
 
     private Map theMap;
-    private java.util.Map<Character, VBox> notificationBoxes = new HashMap<>();
+    private java.util.Map<String, VBox> chestNotificationBoxes = new HashMap<>();
+    private LinkedList<String> messages;
+    private VBox messagesContainer;
+
     @FXML
     private void createNewMap() {
         try {
@@ -101,15 +105,14 @@ public class startSceneController {
             Scene miniMapScene = theMap.getMiniMap();
 
             AnchorPane anchorPane = (AnchorPane) theMap.getMap().getRoot();
-            ScrollPane scrollPane = (ScrollPane) erisimYontemi2(anchorPane);
-
+            ScrollPane scrollPane = (ScrollPane) erisimYontemi(anchorPane);
 
             VBox root = new VBox(10);
 
-            for (char key : new char[]{'a', 'b', 'c', 'd'}) {
+            for (String key : new String[]{"Bakir Sandik toplandi!", "Gumus Sandik toplandi!", "Altin Sandik toplandi!", "Zumrut Sandik toplandi!"}) {
                 VBox notificationBox = new VBox(5);
                 notificationBox.setAlignment(Pos.TOP_RIGHT);
-                notificationBoxes.put(key, notificationBox);
+                chestNotificationBoxes.put(key, notificationBox);
                 root.getChildren().add(notificationBox);
             }
 
@@ -117,20 +120,8 @@ public class startSceneController {
             AnchorPane.setTopAnchor(root, 10.0);
             AnchorPane.setRightAnchor(root, 10.0);
 
-            anchorPane.setOnKeyPressed(event -> {
-                char key = event.getText().toLowerCase().charAt(0);
-                if (notificationBoxes.containsKey(key)) {
-                    VBox notificationBox = notificationBoxes.get(key);
-                    Label notification = new Label(key + " tuşuna basıldı");
-                    notificationBox.getChildren().add(0, notification);
-
-
-                }
-            });
-
-
             AnchorPane miniAnchorPane = (AnchorPane) theMap.getMiniMap().getRoot();
-            ScrollPane miniScrollPane = erisimYontemi2(miniAnchorPane);
+            ScrollPane miniScrollPane = erisimYontemi(miniAnchorPane);
             double miniStep = 0.02; // Kaydırma miktarı
             miniScrollPane.setVvalue(0); // Dikey değer 0-1
             miniScrollPane.setHvalue(0); // Yatay değer 0-1
@@ -201,15 +192,68 @@ public class startSceneController {
 
             theStage.setScene(mapScene);
 
+            messagesContainer = new VBox(15);
+            messagesContainer.setAlignment(Pos.TOP_LEFT);
+            messages = new LinkedList<>();
+
+            anchorPane.getChildren().add(messagesContainer);
+            AnchorPane.setTopAnchor(messagesContainer, 10.0);
+            AnchorPane.setLeftAnchor(messagesContainer, 10.0);
+
+
+            for (int i = 0; i < 6; i++) {
+                ArrayList<String> objects = theMap.update();
+
+                for (String key : objects) {
+                    if(key!=null) {
+                        if (chestNotificationBoxes.containsKey(key)) {
+                            int x = theMap.playerGetX();
+                            int y = theMap.playerGetY();
+                            VBox notificationBox = chestNotificationBoxes.get(key);
+                            Label notification = new Label(key + " (" + x + "," + y + ") konumunda bulundu.");
+                            notificationBox.getChildren().add(0, notification);
+                        } else {
+                            messages.addFirst(key+" kesfedildi!");
+                            updateMessagesContainer();
+                        }
+                    }
+                }
+
+            }
+
+                try {
+                    Thread.sleep(1000);
+                    System.out.println("uyudum");// 1 saniye uyku
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+
         } else {
             showAlert("Uyarı", "Harita Eksik", "Lütfen önce harita oluşturun.");
         }
     }
-    private ScrollPane erisimYontemi2(AnchorPane anchorPane) {
+    private ScrollPane erisimYontemi(AnchorPane anchorPane) {
 
         for (javafx.scene.Node node : anchorPane.getChildren()) {
             return (ScrollPane) node;
         }
         return null;
+    }
+
+    private void updateMessagesContainer() {
+        messagesContainer.getChildren().clear();
+        if(messages.size()>15) messages.removeLast();
+
+        for (String message : messages) {
+            messagesContainer.getChildren().add(createMessageLabel(message));
+        }
+
+    }
+
+    private Label createMessageLabel(String message) {
+        Label label = new Label(message);
+        label.setStyle("-fx-border-color: black;");
+        return label;
     }
 }

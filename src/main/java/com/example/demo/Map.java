@@ -422,7 +422,7 @@ public class Map {
 
 
     }
-    public void update(){
+    public ArrayList<String> update(){
         int old_x=P.getX();
         int old_y=P.getY();
         int dir =P.move();
@@ -439,9 +439,20 @@ public class Map {
 
         unSis(dir,new_x,new_y);
 
+        ArrayList<String> message = new ArrayList<>();
 
+        message.add("Agac");
+        message.add("Duvar");
+        message.add("Bakir Sandik");
+        message.add("Altin Sandik toplandi!");
 
-
+        return message;
+    }
+    public int playerGetX(){
+        return this.P.getX();
+    }
+    public int playerGetY(){
+        return this.P.getY();
     }
     //      a  b -- dir
     //UP    0  1 --  1
