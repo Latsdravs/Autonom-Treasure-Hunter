@@ -10,7 +10,7 @@ import java.util.*;
 public class Player extends GameObject {
     private int ID;
     GameGraph graf;
-    private int[][] vision;
+    private GameObject[][] vision;
     private int grid_x;
     private int grid_y;
 
@@ -35,7 +35,7 @@ public class Player extends GameObject {
 
     }
 
-    public void setVision(int[][] vision){
+    public void setVision(GameObject[][] vision){
         this.vision=vision;
         this.grid_x=vision.length;
         this.grid_y=vision[0].length;
@@ -48,6 +48,9 @@ public class Player extends GameObject {
         pastLocations.add(loc.duplicate());
         return dir;
     }
+
+    //etrafta degisen noktalara bakacak
+    public void look(){}
 
 
 

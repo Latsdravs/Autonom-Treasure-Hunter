@@ -35,7 +35,8 @@ public class Map {
     int miniSize;
     int[][] mapValue;
     int[][] mapHeat;
-    int[][] mapSis;
+    GameObject[][] mapSis;
+    GameObject[][] mapAdress;
     Image[][] mapImage;
     Image[][] miniImage;
     Image miniSisImage;
@@ -66,7 +67,8 @@ public class Map {
         this.P_View=new ImageView();
         this.mapImage=new Image[grid_x][grid_y];
         this.miniImage=new Image[grid_x][grid_y];
-        this.mapSis = new int[grid_x][grid_y];
+        this.mapSis = new GameObject[grid_x][grid_y];
+        this.mapAdress = new GameObject[grid_x][grid_y];
         this.mapValue = new int[grid_x][grid_y];
         this.grid_x = grid_x;
         this.grid_y = grid_y;
@@ -362,14 +364,14 @@ public class Map {
         int y = P.getY();
         int[] empties = new int[]{0,70153,8,542};
 
-        mapSis=new int[grid_x][grid_y];
+        mapSis=new GameObject[grid_x][grid_y];
         for (int i = 0; i < grid_x; i++) {
             for (int j = 0; j < grid_y; j++) {
                 if(isHere(empties,mapValue[i][j]))mapValue[i][j]=0;
                 if(x-3 <= i && i <= x+3 && y-3 <= j && j <= y+3){
-                    mapSis[i][j]=mapValue[i][j];
+                    mapSis[i][j]=mapAdress[i][j];
                 }else {
-                    mapSis[i][j] = 12;
+                    mapSis[i][j] = null;
 
                 }
             }
@@ -412,9 +414,9 @@ public class Map {
         int new_x=P.getX();
         int new_y=P.getY();
         mapValue[old_x][old_y]=0;
-        mapValue[new_x][new_y]=3;
-        mapSis[old_x][old_y]=0;
-        mapSis[new_x][new_y]=3;
+        mapValue[new_x][new_y]=2;
+        mapSis[old_x][old_y]=null;
+        mapSis[new_x][new_y]=P;
         crossImage(old_x,old_y,new_x,new_y);
         crossImageMini(old_x,old_y,new_x,new_y);
 
@@ -430,8 +432,8 @@ public class Map {
         int new_y=P.getY();
         mapValue[old_x][old_y]=0;
         mapValue[new_x][new_y]=2;
-        mapSis[old_x][old_y]=0;
-        mapSis[new_x][new_y]=2;
+        mapSis[old_x][old_y]=null;
+        mapSis[new_x][new_y]=P;
 
 
         crossImage(old_x,old_y,new_x,new_y);
@@ -468,7 +470,7 @@ public class Map {
             int k=3*a+i*b   + x;
             int l=3*b+i*a   + y;
             if(0 <= k && k < grid_x && 0 <= l && l < grid_y) {
-                mapSis[k][l] = mapValue[k][l];
+                mapSis[k][l] = mapAdress[k][l];
                 gridMini[k][l].setImage(miniImage[k][l]);
                 grid[k][l].setImage(mapImage[k][l]);
             }
@@ -486,6 +488,7 @@ public class Map {
                 this.P = new Player(x,y);
                 this.P.setVision(mapSis);
                 mapImage[x][y]=P.getImage(0);
+                mapAdress[x][y]=P;
                 break;
             case 4:
                 if(x < this.grid_x/2) {
@@ -493,6 +496,7 @@ public class Map {
                     for (int i = x ; i < x+15; i++) {
                         for (int j = y; j < y+15; j++) {
                             mapImage[i][j]=temp.getImage((i-x)+(j-y)*15);
+                            mapAdress[i][j]=temp;
                         }
                     }
                     this.objects.add(temp);
@@ -502,6 +506,7 @@ public class Map {
                     for (int i = x ; i < x+15; i++) {
                         for (int j = y; j < y+15; j++) {
                             mapImage[i][j]=temp.getImage((i-x)+(j-y)*15);
+                            mapAdress[i][j]=temp;
                         }
                     }
                     this.objects.add(temp);
@@ -513,6 +518,7 @@ public class Map {
                     for (int i = x ; i < x+2; i++) {
                         for (int j = y; j < y+2; j++) {
                             mapImage[i][j]=temp.getImage((i-x)+(j-y)*2);
+                            mapAdress[i][j]=temp;
                         }
                     }
                     this.objects.add(temp);
@@ -522,6 +528,7 @@ public class Map {
                     for (int i = x ; i < x+2; i++) {
                         for (int j = y; j < y+2; j++) {
                             mapImage[i][j]=temp.getImage((i-x)+(j-y)*2);
+                            mapAdress[i][j]=temp;
                         }
                     }
                     this.objects.add(temp);
@@ -533,6 +540,7 @@ public class Map {
                     for (int i = x ; i < x+2; i++) {
                         for (int j = y; j < y+2; j++) {
                             mapImage[i][j]=temp.getImage((i-x)+(j-y)*2);
+                            mapAdress[i][j]=temp;
                         }
                     }
                     this.objects.add(temp);
@@ -542,6 +550,7 @@ public class Map {
                     for (int i = x ; i < x+2; i++) {
                         for (int j = y; j < y+2; j++) {
                             mapImage[i][j]=temp.getImage((i-x)+(j-y)*2);
+                            mapAdress[i][j]=temp;
                         }
                     }
                     this.objects.add(temp);
@@ -553,6 +562,7 @@ public class Map {
                     for (int i = x ; i < x+10; i++) {
                         for (int j = y; j < y+1; j++) {
                             mapImage[i][j]=temp.getImage((i-x)+(j-y)*10);
+                            mapAdress[i][j]=temp;
                         }
                     }
                     this.objects.add(temp);
@@ -562,6 +572,7 @@ public class Map {
                     for (int i = x ; i < x+10; i++) {
                         for (int j = y; j < y+1; j++) {
                             mapImage[i][j]=temp.getImage((i-x)+(j-y)*10);
+                            mapAdress[i][j]=temp;
                         }
                     }
                     this.objects.add(temp);
@@ -576,6 +587,7 @@ public class Map {
                 for (int i = x; i < x + 5; i++) {
                     for (int j = y; j < y + 2; j++) {
                         mapImage[i][j] = writableImage;
+                        mapAdress[i][j]=temp;
                     }
                 }
                 this.objects.add(temp);
@@ -593,6 +605,7 @@ public class Map {
                     for (int j = y; j < y + 7; j++) {
 
                         mapImage[i][j] = writableImage;
+                        mapAdress[i][j]=temp;
                     }
                 }
                 this.objects.add(temp);
@@ -604,6 +617,7 @@ public class Map {
                     for (int i = x ; i < x+1; i++) {
                         for (int j = y; j < y+10; j++) {
                             mapImage[i][j]=temp.getImage((i-x)+(j-y)*1);
+                            mapAdress[i][j]=temp;
                         }
                     }
                     this.objects.add(temp);
@@ -613,6 +627,7 @@ public class Map {
                     for (int i = x ; i < x+1; i++) {
                         for (int j = y; j < y+10; j++) {
                             mapImage[i][j]=temp.getImage((i-x)+(j-y)*1);
+                            mapAdress[i][j]=temp;
                         }
                     }
                     this.objects.add(temp);
@@ -624,6 +639,7 @@ public class Map {
                     for (int i = x ; i < x+4; i++) {
                         for (int j = y; j < y+4; j++) {
                             mapImage[i][j]=temp.getImage((i-x)+(j-y)*4);
+                            mapAdress[i][j]=temp;
                         }
                     }
                     this.objects.add(temp);
@@ -633,6 +649,7 @@ public class Map {
                     for (int i = x ; i < x+4; i++) {
                         for (int j = y; j < y+4; j++) {
                             mapImage[i][j]=temp.getImage((i-x)+(j-y)*4);
+                            mapAdress[i][j]=temp;
                         }
                     }
                     this.objects.add(temp);
@@ -644,6 +661,7 @@ public class Map {
                     for (int i = x ; i < x+4; i++) {
                         for (int j = y; j < y+4; j++) {
                             mapImage[i][j]=temp.getImage((i-x)+(j-y)*4);
+                            mapAdress[i][j]=temp;
                         }
                     }
                     this.objects.add(temp);
@@ -653,6 +671,7 @@ public class Map {
                     for (int i = x ; i < x+4; i++) {
                         for (int j = y; j < y+4; j++) {
                             mapImage[i][j]=temp.getImage((i-x)+(j-y)*4);
+                            mapAdress[i][j]=temp;
                         }
                     }
                     this.objects.add(temp);
