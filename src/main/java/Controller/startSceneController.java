@@ -15,6 +15,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 public class startSceneController {
@@ -41,8 +42,7 @@ public class startSceneController {
     }
 
     private Map theMap;
-    private VBox messagesContainer;
-    private LinkedList<String> messages;
+    private java.util.Map<Character, VBox> notificationBoxes = new HashMap<>();
     @FXML
     private void createNewMap() {
         try {
@@ -94,62 +94,46 @@ public class startSceneController {
         }
     }
 
-    private void addButtonClicked(String buttonName) {
-        String message = buttonName + " tuşuna basıldı";
-
-        // Yeni mesajı ekleyip güncellenmiş listeyi göster
-        messages.addFirst(message);
-        updateMessagesContainer();
-    }
-
-    private void updateMessagesContainer() {
-        // Mesajları temizle ve güncellenmiş listeyi göster
-        messagesContainer.getChildren().clear();
-
-        for (String message : messages) {
-            messagesContainer.getChildren().add(createMessageLabel(message));
-        }
-    }
-
-    private Label createMessageLabel(String message) {
-        Label label = new Label(message);
-        label.setStyle("-fx-border-color: black;");
-        return label;
-    }
-
     @FXML
     private void start() {
-        // Başlatma işlemlerini buraya ekle
         if (theMap != null) {
-
-            //messagesContainer = new VBox(10);
-            //messagesContainer.setAlignment(Pos.TOP_RIGHT);
-            //messages = new LinkedList<>();
-
-            //Button buttonA = new Button("A");
-            //buttonA.setOnAction(e -> addButtonClicked("A"));
-
-            //Button buttonB = new Button("B");
-            //buttonB.setOnAction(e -> addButtonClicked("B"));
-
-            //Button buttonC = new Button("C");
-            //buttonC.setOnAction(e -> addButtonClicked("C"));
-
-            //Button buttonD = new Button("D");
-            //buttonD.setOnAction(e -> addButtonClicked("D"));
-
-            //VBox root = new VBox(20);
-            //root.getChildren().addAll(buttonA, buttonB, buttonC, buttonD, messagesContainer);
-
-
-
             Scene mapScene = theMap.getMap();
             Scene miniMapScene = theMap.getMiniMap();
+
+            AnchorPane anchorPane = (AnchorPane) theMap.getMap().getRoot();
+            ScrollPane scrollPane = (ScrollPane) erisimYontemi2(anchorPane);
+
+
+            VBox root = new VBox(10);
+
+            for (char key : new char[]{'a', 'b', 'c', 'd'}) {
+                VBox notificationBox = new VBox(5);
+                notificationBox.setAlignment(Pos.TOP_RIGHT);
+                notificationBoxes.put(key, notificationBox);
+                root.getChildren().add(notificationBox);
+            }
+
+            anchorPane.getChildren().addAll(root);
+            AnchorPane.setTopAnchor(root, 10.0);
+            AnchorPane.setRightAnchor(root, 10.0);
+
+            anchorPane.setOnKeyPressed(event -> {
+                char key = event.getText().toLowerCase().charAt(0);
+                if (notificationBoxes.containsKey(key)) {
+                    VBox notificationBox = notificationBoxes.get(key);
+                    Label notification = new Label(key + " tuşuna basıldı");
+                    notificationBox.getChildren().add(0, notification);
+
+
+                }
+            });
+
+
             AnchorPane miniAnchorPane = (AnchorPane) theMap.getMiniMap().getRoot();
             ScrollPane miniScrollPane = erisimYontemi2(miniAnchorPane);
-            double miniStep = 0.02; // Kaydırma adım miktarı
-            miniScrollPane.setVvalue(0); // Dikey değer için (0.0 - 1.0 arası)
-            miniScrollPane.setHvalue(0); // Yatay değer için (0.0 - 1.0 arası)
+            double miniStep = 0.02; // Kaydırma miktarı
+            miniScrollPane.setVvalue(0); // Dikey değer 0-1
+            miniScrollPane.setHvalue(0); // Yatay değer 0-1
 
             miniAnchorPane.setOnKeyPressed(event -> {
                 switch (event.getCode()) {
@@ -170,11 +154,6 @@ public class startSceneController {
                         break;
                 }
             });
-            AnchorPane anchorPane = (AnchorPane) theMap.getMiniMap().getRoot();
-            ScrollPane scrollPane = erisimYontemi2(anchorPane);
-            double step = 0.02; // Kaydırma adım miktarı
-            scrollPane.setVvalue(0); // Dikey değer için (0.0 - 1.0 arası)
-            scrollPane.setHvalue(0); // Yatay değer için (0.0 - 1.0 arası)
 
             mapScene.setOnKeyPressed(event -> {
                 if (event.getCode() == KeyCode.F) {
@@ -195,9 +174,6 @@ public class startSceneController {
                 }
 
             });
-
-
-
 
 
             miniMapScene.setOnKeyPressed(event -> {
