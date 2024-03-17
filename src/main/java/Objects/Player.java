@@ -1,11 +1,19 @@
 package Objects;
 
-import java.util.ArrayList;
-import java.util.Random;
+import com.example.demo.GameGraph;
+
+import javafx.scene.image.Image;
+
+import java.util.*;
+
 
 public class Player extends GameObject {
     private int ID;
+    GameGraph graf;
     private int[][] vision;
+    private int grid_x;
+    private int grid_y;
+
 
     ArrayList<Location> pastLocations = new ArrayList<>();
 
@@ -19,19 +27,28 @@ public class Player extends GameObject {
 
     public Player(int x, int y){
         super(1,x,y);
+        this.images[0] = new Image(getClass().getResourceAsStream("/Objects/assets/character.png"));
         pastLocations.add(loc.duplicate());
         this.ID = new Random().nextInt();
 
+
+
     }
+
     public void setVision(int[][] vision){
         this.vision=vision;
+        this.grid_x=vision.length;
+        this.grid_y=vision[0].length;
+        graf = new GameGraph(grid_x,grid_y);
     }
+
     public int move(){return 0;}
     public int move(int dir){
         this.loc = new Location(loc.x+dir/2,loc.y+dir%2);
         pastLocations.add(loc.duplicate());
         return dir;
     }
+
 
 
 
