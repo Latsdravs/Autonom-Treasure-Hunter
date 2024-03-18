@@ -109,7 +109,7 @@ public class startSceneController {
 
             VBox root = new VBox(10);
 
-            for (String key : new String[]{"Bakir Sandik toplandi!", "Gumus Sandik toplandi!", "Altin Sandik toplandi!", "Zumrut Sandik toplandi!"}) {
+            for (String key : new String[]{"Zumrut Sandik toplandi!", "Altin Sandik toplandi!" ,"Gumus Sandik toplandi!","Bakir Sandik toplandi!"}) {
                 VBox notificationBox = new VBox(5);
                 notificationBox.setAlignment(Pos.TOP_RIGHT);
                 chestNotificationBoxes.put(key, notificationBox);
