@@ -85,8 +85,11 @@ public class Player extends GameObject {
         int x=this.getX();
         int y = this.getY();
         for (int i = -3; i < 4; i++) {
-            if(!explored.contains(vision[x+dir/2*3+i*dir%2][y+dir%2*3+i*dir/2])){
-                explored.add(vision[x+dir/2*3+i*dir%2][y+dir%2*3+i*dir/2]);
+            GameObject temp = vision[x+dir/2*3+i*dir%2][y+dir%2*3+i*dir/2];
+            if(!explored.contains(temp)){
+                explored.add(temp);
+                graf.emptySpace(temp.getX(),temp.getY(),temp.getX()+temp.size,temp.getY()+temp.size);
+                graf.obstacleWall(temp.getX(),temp.getY(),temp.getX()+temp.size,temp.getY()+temp.size);
 
             }
         }

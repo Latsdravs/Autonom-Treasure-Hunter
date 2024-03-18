@@ -249,6 +249,10 @@ public class GameGraph {
         }
 
     }
+    public void emptySpace(int start_x,int start_y,int end_x,int end_y){
+
+    }
+    public void obstacleWall(int start_x,int start_y,int end_x,int end_y){}
     public int flatAddFirst(ArrayList<Square> squares){
         for (Square s:
              squares) {
