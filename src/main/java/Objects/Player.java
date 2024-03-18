@@ -45,16 +45,32 @@ public class Player extends GameObject {
         graf.fastestRouteFirst(this.getX(),this.getY());
         gameplan= graf.getRoute();
         System.out.println("length:"+gameplan.length());
+
     }
 
     public int move(){
-        return switch (gameplan.charAt(0)) {
-            case 'U' -> -1;
-            case 'D' -> 1;
-            case 'R' -> 2;
-            case 'L' -> -2;
-            default -> 0;
-        };
+        int dir;
+        if(gameplan.length()>0) {
+            switch (gameplan.charAt(0)) {
+                case 'U':
+                    dir = -1;
+                    break;
+                case 'D':
+                    dir = 1;
+                    break;
+                case 'R':
+                    dir = 2;
+                    break;
+                case 'L':
+                    dir = -2;
+                    break;
+                default:
+                    dir = 0;
+            }
+        }else dir=0;
+        this.loc = new Location(loc.x+dir/2,loc.y+dir%2);
+        pastLocations.add(loc.duplicate());
+        return dir;
     }
     public int move(int dir){
         this.loc = new Location(loc.x+dir/2,loc.y+dir%2);
@@ -64,7 +80,8 @@ public class Player extends GameObject {
 
     //etrafta degisen noktalara bakacak
     public void look(){
-        gameplan=gameplan.substring(1);
+        if(gameplan.length()>0)
+            gameplan=gameplan.substring(1);
     }
 
 

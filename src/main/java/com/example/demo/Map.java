@@ -14,6 +14,7 @@ import Objects.*;
 import java.util.*;
 
 public class Map {
+    public boolean finish=false;
     ArrayList<GameObject> objects = new ArrayList<>();
     Scene Map;
     Scene miniMap;
@@ -81,7 +82,8 @@ public class Map {
         Group mini = new Group();
         //Basic Objects
         {
-            BPSRoom(grid_x,grid_y,2,1,mapValue,2,1);
+            addObject(3,3,2);
+            //BPSRoom(grid_x,grid_y,2,1,mapValue,2,1);
             /*
             BPSRoomRoaded(grid_x, grid_y, 4, 12, mapValue, 542, grid_x * grid_y / 8192 + 10);
 
@@ -443,13 +445,10 @@ public class Map {
 
         unSis(dir,new_x,new_y);
         P.look();
-
+        if(dir==0)finish=true;
         ArrayList<String> message = new ArrayList<>();
 
-        message.add("Agac");
-        message.add("Duvar");
-        message.add("Bakir Sandik");
-        message.add("Altin Sandik toplandi!");
+
 
         return message;
     }

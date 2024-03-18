@@ -261,6 +261,7 @@ public class GameGraph {
             s.shortestSeenFirst();
         }
         squareCount+=squares.size();
+        System.out.println("after first flat:"+squareCount);
         return 0;
     }
     public int flatAdd(ArrayList<Square> squares){
@@ -322,9 +323,9 @@ public class GameGraph {
 
 
         for (int i = 0; i < grid_x; i++) {
-            if( (i <= x && i%7==3) || (grid_x-i >= x && (grid_x-i)%7==3) ||  i==x){
+            if( (i <= x && i%7==3) || (grid_x-1-i >= x && (grid_x-1-i)%7==3) ||  i==x){
                 for (int j = 0; j < grid_y; j++) {
-                    if((j <= y && j%7 == 3) || (grid_y-j >= y && (grid_y-j)%7==3) || (j==y)){
+                    if((j <= y && j%7 == 3) || (grid_y-1-j >= y && (grid_y-1-j)%7==3) || (j==y)){
                         x_values.add(i);
                         y_values.add(j);
                         if(x==i && y==j) System.out.println(i+" , "+j);
@@ -343,12 +344,12 @@ public class GameGraph {
             GameGraph.Square temp = this.new Square(x_values.removeFirst(),y_values.removeFirst());
             squares.add(temp);
             visited.put(temp,0);
-            grid[temp.x][temp.y]=temp;
 
             if(temp.x==x && temp.y==y) System.out.println("in grid:"+temp.x+" , "+temp.y);
         }
         this.flatAddFirst(squares);
         System.out.println(x+" , "+y);
+        System.out.println("ekledim:"+squares.size());
         this.setTheSquare(x,y);
 
         int maxDist = Integer.MIN_VALUE;
@@ -446,6 +447,7 @@ public class GameGraph {
         ListIterator<Step> stepper = steps.listIterator();
         int index=-1;
         int smallestAdding=Integer.MAX_VALUE;
+        boolean duble=false;
 
         Square a = li.next();
         Square b;
@@ -463,7 +465,42 @@ public class GameGraph {
             i++;
 
         }
+        li = route.listIterator();
+        i=0;
+        Step ara=null;
+        do {
+            a=li.next();
 
+            for (Square.Target t:
+                 a.adjacents) {
+                if(visited.get(t.square)!=null){
+                    int tempPrize=t.distance*2;
+                    if(tempPrize < smallestAdding){
+                        smallestAdding=tempPrize;
+                        index=i;
+                        duble=true;
+                        ara = new Step(0);
+                        ara.addingPrize=tempPrize;
+                        ara.adding=t.square;
+                        ara.step1=new Step(t.distance);
+                        ara.step2=new Step(t.distance);
+
+                    }
+                }
+
+
+            }
+
+            i++;
+        }while (li.hasNext());
+        if(duble){
+            steps.add(index,ara);
+            route.add(index,route.get(index));
+
+        }
+
+
+        if(index==-1)return;
         step=steps.get(index);
         route.add(index+1,step.adding);
         visited.replace(step.adding,null);
@@ -499,6 +536,9 @@ public class GameGraph {
         ArrayList<Integer> moves=new ArrayList<>();
         ListIterator<Square> li = route.listIterator();
         System.out.println("way size"+route.size());
+        for (int i = 0; i < route.size(); i++) {
+            System.out.println(route.get(i).x+" , "+route.get(i).y);
+        }
         Square a =li.next();
         Square b;
         while (li.hasNext()){
@@ -521,7 +561,7 @@ public class GameGraph {
                     moves.add(-1);
                 }
             }
-
+            a = b;
         }
         System.out.println("moves size"+moves.size());
         char[] charArray = new char[moves.size()];

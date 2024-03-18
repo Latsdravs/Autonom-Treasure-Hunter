@@ -1,6 +1,9 @@
 package Controller;
 
 
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
@@ -13,6 +16,7 @@ import javafx.stage.Stage;
 import com.example.demo.Map;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
+import javafx.util.Duration;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,6 +45,7 @@ public class startSceneController {
     public void setTheStage(Stage theStage) {
         this.theStage = theStage;
     }
+    private Timeline timeline;
 
     private Map theMap;
     private java.util.Map<String, VBox> chestNotificationBoxes = new HashMap<>();
@@ -199,38 +204,48 @@ public class startSceneController {
             anchorPane.getChildren().add(messagesContainer);
             AnchorPane.setTopAnchor(messagesContainer, 10.0);
             AnchorPane.setLeftAnchor(messagesContainer, 10.0);
+            timeline = new Timeline(
+                    new KeyFrame(Duration.seconds(0.009), e -> callMe())
+
+            );
+
+            // If you want to repeat indefinitely:
+            timeline.setCycleCount(Animation.INDEFINITE);
+
+            timeline.play();
 
 
-            for (int i = 0; i < 6; i++) {
-                ArrayList<String> objects = theMap.update();
 
-                for (String key : objects) {
-                    if(key!=null) {
-                        if (chestNotificationBoxes.containsKey(key)) {
-                            int x = theMap.playerGetX();
-                            int y = theMap.playerGetY();
-                            VBox notificationBox = chestNotificationBoxes.get(key);
-                            Label notification = new Label(key + " (" + x + "," + y + ") konumunda bulundu.");
-                            notificationBox.getChildren().add(0, notification);
-                        } else {
-                            messages.addFirst(key+" kesfedildi!");
-                            updateMessagesContainer();
-                        }
-                    }
-                }
-
+            try {
+                Thread.sleep(1000);
+                System.out.println("uyudum");// 1 saniye uyku
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-
-                try {
-                    Thread.sleep(1000);
-                    System.out.println("uyudum");// 1 saniye uyku
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
 
 
         } else {
             showAlert("Uyarı", "Harita Eksik", "Lütfen önce harita oluşturun.");
+        }
+    }
+    private void callMe(){
+
+        ArrayList<String> objects = theMap.update();
+        if(theMap.finish)timeline.stop();
+
+        for (String key : objects) {
+            if(key!=null) {
+                if (chestNotificationBoxes.containsKey(key)) {
+                    int x = theMap.playerGetX();
+                    int y = theMap.playerGetY();
+                    VBox notificationBox = chestNotificationBoxes.get(key);
+                    Label notification = new Label(key + " (" + x + "," + y + ") konumunda bulundu.");
+                    notificationBox.getChildren().add(0, notification);
+                } else {
+                    messages.addFirst(key+" kesfedildi!");
+                    updateMessagesContainer();
+                }
+            }
         }
     }
     private ScrollPane erisimYontemi(AnchorPane anchorPane) {
