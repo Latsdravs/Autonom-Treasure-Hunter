@@ -445,17 +445,51 @@ public class Map {
 
         unSis(dir,new_x,new_y);
         ArrayList<Integer> indexes = P.look(dir);
+        ArrayList<String> messages = new ArrayList<String>();
         for (Integer i:
              indexes) {
             int temp = mapValue[new_x+dir/2*3+i*dir%2][new_y+dir%2*3+i*dir/2];
-
+            String message = "";
+            switch (temp){
+                case 4: message+= "Dag"; break;//mountain
+                case 542: message+= "Goldens"; break;//goldens
+                case 543:
+                    switch(((Chest) mapAdress[new_x+dir/2*3+i*dir%2][new_y+dir%2*3+i*dir/2]).type){
+                        case 0:
+                            message+="Bakir Sandik";
+                            break;
+                        case 1:
+                            message+="Gumus Sandik";
+                            break;
+                        case 2:
+                            message+="Altin Sandik";
+                            break;
+                        case 3:
+                            message+="Zumrut Sandik";
+                            break;
+                    }
+                    break;//Chest
+                case 70153: message+= "Noise"; break;//Noise
+                case 5: message+= "Agac"; break;//tree
+                case 6: message+= "Kaya"; break;//rock
+                case 7: message+= "Duvar"; break;//wall
+                case 8: message+= "Duvar"; break;//wall perimeter
+                case 9 : message+= "Ari"; break;//bee
+                case 10: message+= "Kus"; break;//bird
+                case 11: message+= "Duvar"; break;//WallV
+                case 12: message+= "Sis"; break;//Sis
+                case 13: message+= "Agac"; break;//Tree2
+                case 14: message+= "Kaya"; break;//Rock2
+            }
+            messages.addFirst(message);
         }
         if(dir==0)finish=true;
-        ArrayList<String> message;
 
 
 
-        return message;
+
+
+        return messages;
     }
     public int playerGetX(){
         return this.P.getX();
@@ -502,17 +536,44 @@ public class Map {
                 int rand=random.nextInt(4);
                 switch (rand){
                     case 0:
+                        Chest temp = new Chest(x,y);
+                        temp.type = 0;
                         for (int i = 0; i < 2; i++) {
                             for (int j = 0; j < 2; j++) {
-
+                                mapImage[i][j]=temp.getImage((i-x)+(j-y)*2+rand*4);
+                                mapAdress[i][j]=temp;
                             }
                         }
                         break;
                     case 1:
+                        Chest temp2 = new Chest(x,y);
+                        temp2.type = 1;
+                        for (int i = 0; i < 2; i++) {
+                            for (int j = 0; j < 2; j++) {
+                                mapImage[i][j]=temp2.getImage((i-x)+(j-y)*2+rand*4);
+                                mapAdress[i][j]=temp2;
+                            }
+                        }
                         break;
                     case 2:
+                        Chest temp3 = new Chest(x,y);
+                        temp3.type = 2;
+                        for (int i = 0; i < 2; i++) {
+                            for (int j = 0; j < 2; j++) {
+                                mapImage[i][j]=temp3.getImage((i-x)+(j-y)*2+rand*4);
+                                mapAdress[i][j]=temp3;
+                            }
+                        }
                         break;
                     case 3:
+                        Chest temp4 = new Chest(x,y);
+                        temp4.type = 3;
+                        for (int i = 0; i < 2; i++) {
+                            for (int j = 0; j < 2; j++) {
+                                mapImage[i][j]=temp4.getImage((i-x)+(j-y)*2+rand*4);
+                                mapAdress[i][j]=temp4;
+                            }
+                        }
                         break;
                 }
 

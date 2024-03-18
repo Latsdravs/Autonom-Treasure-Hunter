@@ -3,6 +3,7 @@ package Objects;
 import javafx.scene.image.Image;
 
 public class Chest extends InanimateObstacle{
+    public int type;
     public Chest(int x, int y) {
         super(4*4, x, y);
         for (int i = 0; i < 4; i++) {
