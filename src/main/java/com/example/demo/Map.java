@@ -82,6 +82,7 @@ public class Map {
         //Basic Objects
         {
             BPSRoom(grid_x,grid_y,2,1,mapValue,2,1);
+            /*
             BPSRoomRoaded(grid_x, grid_y, 4, 12, mapValue, 542, grid_x * grid_y / 8192 + 10);
 
 
@@ -94,10 +95,11 @@ public class Map {
 
             BPSRoomOffsetted(grid_x, grid_y, 4, 1, 10, mapValue, 11, grid_x * grid_y / 8192 + 5,  8, 1);
             BPSRoomOffsetted(grid_x, grid_y, 4, 10, 1, mapValue, 7, grid_x * grid_y / 8192 + 5,  8, 1);
+            */
         }
         System.out.println("3");
 
-
+        /*
         int[] empties = new int[]{0,70153,8};
 
         NoiseFill(grid_x,grid_y,62,mapValue);
@@ -109,7 +111,7 @@ public class Map {
             int Count = grid_x * grid_y / 512 / i + 20 / i;
             executeStoneAge(grid_x,grid_y,mapValue,empties,P_D, Count, Count);
         }
-
+        */
 
 
 
@@ -440,6 +442,7 @@ public class Map {
         crossImageMini(old_x,old_y,new_x,new_y);
 
         unSis(dir,new_x,new_y);
+        P.look();
 
         ArrayList<String> message = new ArrayList<>();
 

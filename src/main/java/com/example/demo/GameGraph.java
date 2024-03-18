@@ -7,11 +7,27 @@ import static java.util.function.Predicate.not;
 
 
 public class GameGraph {
+
+
     Map<GameGraph.Square,Integer> visited;
+    int visitedCount=0;
     int squareCount=0;
     Square theSquare;
     Square fartest;
-    private LinkedList<Square> route;
+    class Step{
+        int size;
+        Square adding;
+        Step step1;
+        Step step2;
+        int addingPrize;
+
+        public Step(int size) {
+            this.size = size;
+            this.addingPrize=Integer.MAX_VALUE;
+        }
+    }
+    private LinkedList<Square> route=new LinkedList<>();
+    private LinkedList<Step> steps=new LinkedList<>();
 
     public Square getFartest() {
         return fartest;
@@ -46,19 +62,21 @@ public class GameGraph {
         }
 
         public class Target{
-            Square square;
-            int distance;
+            final Square square;
+            final int distance;
 
             public Target(Square target, int distance) {
                 this.square = target;
                 this.distance = distance;
             }
         }
-        int x;
-        int y;
+        boolean obstacle = false;
+        final int x;
+        final int y;
         int shortest = Integer.MAX_VALUE;
         ArrayList<Target> adjacents=new ArrayList<>();
         void shortestSeen(int begin){
+            if(this.obstacle)return;
             int dist = begin;
 
 
@@ -114,6 +132,7 @@ public class GameGraph {
 
         }//maybe try in wash but not much hope
         private void wash(){
+
             int dist = 1;
 
 
@@ -160,14 +179,16 @@ public class GameGraph {
             if(dist < shortest)shortest=dist;
             if(dist < grid[lx][ly].shortest)grid[lx][ly].shortest=dist;
             this.adjacents.add(new Target(grid[lx][ly],dist));
-            grid[lx][ly].adjacents.add(new Target(this,dist));
+            if(!grid[lx][ly].obstacle)
+                grid[lx][ly].adjacents.add(new Target(this,dist));
 
         }
         private void connect(Square s,int dist) {
             if(dist < shortest)shortest=dist;
             if(dist < s.shortest)s.shortest=dist;
             this.adjacents.add(new Target(s,dist));
-            s.adjacents.add(new Target(this,dist));
+            if(!s.obstacle)
+                s.adjacents.add(new Target(this,dist));
         }
         private void removeTarget(Square s){
             for (Target t:
@@ -183,6 +204,7 @@ public class GameGraph {
             }
         }
         private void removeT(Square s){
+            if(this.obstacle)return;
             for (Target t:
                     this.adjacents) {
                 if(t.square==s) {
@@ -293,7 +315,7 @@ public class GameGraph {
         squareCount--;
 
     }
-    public void fastestRoute(int x,int y){
+    public void fastestRouteFirst(int x,int y){
         ArrayList<Integer> x_values=new ArrayList<>();
         ArrayList<Integer> y_values=new ArrayList<>();
 
@@ -305,6 +327,7 @@ public class GameGraph {
                     if((j <= y && j%7 == 3) || (grid_y-j >= y && (grid_y-j)%7==3) || (j==y)){
                         x_values.add(i);
                         y_values.add(j);
+                        if(x==i && y==j) System.out.println(i+" , "+j);
 
                     }
                 }
@@ -313,17 +336,22 @@ public class GameGraph {
         }
 
         int num_of_squares = x_values.size();
+        System.out.println("check points:"+num_of_squares);
         ArrayList<GameGraph.Square> squares=new ArrayList<>();
-        visited=new HashMap<>(num_of_squares);
+        visited=new HashMap<>();
         for (int i = 0; i < num_of_squares; i++) {
             GameGraph.Square temp = this.new Square(x_values.removeFirst(),y_values.removeFirst());
             squares.add(temp);
             visited.put(temp,0);
+            grid[temp.x][temp.y]=temp;
+
+            if(temp.x==x && temp.y==y) System.out.println("in grid:"+temp.x+" , "+temp.y);
         }
         this.flatAddFirst(squares);
+        System.out.println(x+" , "+y);
         this.setTheSquare(x,y);
 
-        int maxDist = 0;
+        int maxDist = Integer.MIN_VALUE;
         Square farOne=theSquare;
         BinaryMinHeap<Square> minHeap = new BinaryMinHeap<>();
 
@@ -331,20 +359,28 @@ public class GameGraph {
         Map<Square,Integer> distance = new HashMap<>();
 
         Map<Square,Square> parent = new HashMap<>();
-
+        int sayac=0;
         for (Square[] dizi:
                 grid) {
             for (Square temp:
                     dizi) {
-                if(temp!=null)minHeap.add(Integer.MAX_VALUE,temp);
+                if(temp!=null && !temp.obstacle) {
+                    temp.shortestSeenFirst();
+                    System.out.println(temp.adjacents);
+                    minHeap.add(Integer.MAX_VALUE, temp);
+                    sayac++;
+                }
 
             }
         }
+        System.out.println("sayac:"+sayac);
         minHeap.decrease(theSquare,0);
+
 
         distance.put(theSquare, 0);
 
         parent.put(theSquare, null);
+        minHeap.printHeap();
 
         while(!minHeap.empty()){
             //get the min value from heap node which has vertex and distance of that vertex from source vertex.
@@ -380,21 +416,135 @@ public class GameGraph {
                     parent.put(adjacent, current);
                 }
             }
+
         }
+        System.out.println("after");
+        minHeap.printHeap();
 
-
-
-
-
+        System.out.println("maxDist:"+maxDist);
         this.fartest=farOne;
         GameGraph.Square temp=this.fartest;
+        Square old;
 
         do {
-
+            old=temp;
+            visitedCount++;
             visited.replace(temp,null);
             route.addFirst(temp);
             temp=parent.get(temp);
+            if(temp!=null)steps.addFirst(new Step( distance.get(old)-distance.get(temp) )  );
         }while (temp!=null);
+        System.out.println("squareCount:"+squareCount);
+        while (visitedCount<squareCount) {
+            refreshLink_triangulize();
+        }
+
+    }
+
+    private void refreshLink_triangulize(){// A B -> A C B  yapar ama A B -> A C A B yapmaz!!! gerek var mı bilmiyorum -Emin
+        ListIterator<Square> li = route.listIterator();
+        ListIterator<Step> stepper = steps.listIterator();
+        int index=-1;
+        int smallestAdding=Integer.MAX_VALUE;
+
+        Square a = li.next();
+        Square b;
+        Step step;
+        int i=0;
+        while (li.hasNext() && stepper.hasNext()){
+            b = li.next();
+            step =stepper.next();
+            upStep(a,b,step);
+            if(step.addingPrize<smallestAdding){
+                index=i;
+                smallestAdding=step.addingPrize;
+            }
+            a=b;
+            i++;
+
+        }
+
+        step=steps.get(index);
+        route.add(index+1,step.adding);
+        visited.replace(step.adding,null);
+        visitedCount++;
+        steps.remove(index);
+        steps.add(index,step.step2);
+        steps.add(index,step.step1);
+
+
+    }
+    private void upStep(Square a,Square b,Step step){
+
+        for (Square.Target t1:
+             a.adjacents) {
+            for (Square.Target t2:
+                    b.adjacents) {
+                if(t1.square==t2.square && visited.get(t1.square)!=null){
+                    int tempPrize=t1.distance+t2.distance-step.size;
+                    if(tempPrize < step.addingPrize){
+                        step.addingPrize=tempPrize;
+                        step.adding=t1.square;
+                        step.step1=new Step(t1.distance);
+                        step.step2=new Step(t2.distance);
+
+                    }
+
+
+                }
+            }
+        }
+    }
+    public String getRoute() {
+        ArrayList<Integer> moves=new ArrayList<>();
+        ListIterator<Square> li = route.listIterator();
+        System.out.println("way size"+route.size());
+        Square a =li.next();
+        Square b;
+        while (li.hasNext()){
+            b = li.next();
+            if(b.x-a.x > 0){
+                for (int i = a.x; i < b.x; i++) {
+                    moves.add(2);
+                }
+            }else {
+                for (int i = b.x; i < a.x; i++) {
+                    moves.add(-2);
+                }
+            }
+            if(b.y-a.y > 0){
+                for (int i = a.y; i < b.y; i++) {
+                    moves.add(1);
+                }
+            }else {
+                for (int i = b.y; i < a.y; i++) {
+                    moves.add(-1);
+                }
+            }
+
+        }
+        System.out.println("moves size"+moves.size());
+        char[] charArray = new char[moves.size()];
+        for (int i = 0; i < moves.size(); i++) {
+            switch (moves.get(i)){
+                case 1:
+                    charArray[i]='D';
+                    break;
+                case -1:
+                    charArray[i]='U';
+                    break;
+                case 2:
+                    charArray[i]='R';
+                    break;
+                case -2:
+                    charArray[i]='L';
+                    break;
+                default:
+                    charArray[i]='W';
+            }
+        }
+        return new String(charArray);
+
     }
 
 
