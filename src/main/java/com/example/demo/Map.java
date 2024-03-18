@@ -82,9 +82,9 @@ public class Map {
         Group mini = new Group();
         //Basic Objects
         {
-            addObject(3,3,2);
-            //BPSRoom(grid_x,grid_y,2,1,mapValue,2,1);
-            /*
+
+            BPSRoom(grid_x,grid_y,2,1,mapValue,2,1);
+
             BPSRoomRoaded(grid_x, grid_y, 4, 12, mapValue, 542, grid_x * grid_y / 8192 + 10);
 
 
@@ -97,7 +97,7 @@ public class Map {
 
             BPSRoomOffsetted(grid_x, grid_y, 4, 1, 10, mapValue, 11, grid_x * grid_y / 8192 + 5,  8, 1);
             BPSRoomOffsetted(grid_x, grid_y, 4, 10, 1, mapValue, 7, grid_x * grid_y / 8192 + 5,  8, 1);
-            */
+
         }
         System.out.println("3");
 

@@ -247,6 +247,14 @@ public class GameGraph {
             }
             return result;
         }
+        boolean isTargeted(Square s){
+
+            for (Target t:
+                 this.adjacents) {
+                if(t.square.equals(s))return true;
+            }
+            return false;
+        }
 
     }
     public void emptySpace(int start_x,int start_y,int end_x,int end_y){
@@ -335,6 +343,7 @@ public class GameGraph {
 
 
             }
+            if(visited.get(s)==null)visitedCount--;
         }
         squareCount-=squares.size();
     }
@@ -347,12 +356,130 @@ public class GameGraph {
 
 
         }
+        if(visited.get(s)==null)visitedCount--;
         squareCount--;
 
     }
-    public void updateRoute(){
+    private void patch(Square a,Square b,int index){
 
+
+
+        BinaryMinHeap<Square> minHeap = new BinaryMinHeap<>();
+
+
+        Map<Square,Integer> distance = new HashMap<>();
+
+        Map<Square,Square> parent = new HashMap<>();
+        int sayac=0;
+        for (Square[] dizi:
+                grid) {
+            for (Square temp:
+                    dizi) {
+                if(temp!=null && !temp.obstacle) {
+                    temp.shortestSeenFirst();
+                    System.out.println(temp.adjacents);
+                    minHeap.add(Integer.MAX_VALUE, temp);
+                    sayac++;
+                }
+
+            }
+        }
+        System.out.println("sayac:"+sayac);
+        minHeap.decrease(a,0);
+
+
+        distance.put(a, 0);
+
+        parent.put(a, null);
+        minHeap.printHeap();
+
+        while(!minHeap.empty()){
+            //get the min value from heap node which has vertex and distance of that vertex from source vertex.
+            BinaryMinHeap<Square>.Node heapNode = minHeap.extractMinNode();
+            Square current = heapNode.key;
+
+            //update shortest distance of current vertex from source vertex
+            distance.put(current, heapNode.weight);
+
+            //iterate through all edges of current vertex
+            for(Square.Target edge : current.adjacents){
+
+                //get the adjacent vertex
+                Square adjacent = edge.square;
+
+                //if heap does not contain adjacent vertex means adjacent vertex already has shortest distance from source vertex
+                if(!minHeap.containsData(adjacent)){
+                    continue;
+                }
+
+                //add distance of current vertex to edge weight to get distance of adjacent vertex from source vertex
+                //when it goes through current vertex
+                int newDistance = distance.get(current) + edge.distance;
+
+                //see if this above calculated distance is less than current distance stored for adjacent vertex from source vertex
+                if(minHeap.getWeight(adjacent) > newDistance) {
+
+                    minHeap.decrease(adjacent, newDistance);
+                    parent.put(adjacent, current);
+                }
+            }
+
+        }
+        GameGraph.Square temp=b;
+        Square old;
+
+        do {
+            old=temp;
+
+            if(visited.get(temp)!=null)visitedCount++;
+            visited.replace(temp,null);
+            route.add(temp);
+            temp=parent.get(temp);
+            if(temp!=null)steps.addFirst(new Step( distance.get(old)-distance.get(temp) )  );
+        }while (temp!=null);
+        System.out.println("squareCount:"+squareCount);
+        while (visitedCount<squareCount) {
+            refreshLink_triangulize();
+        }
     }
+
+
+    /*public void updateRoute(){
+
+        ListIterator<Square> li1= route.listIterator();
+        ListIterator<Step> stepper=steps.listIterator();
+        Square a;
+        Square b;
+        while (li1.hasNext()){
+            a=li1.next();
+            ListIterator<Square> li2= route.listIterator(li1.nextIndex());
+            b=li2.next();
+
+            if(!a.isTargeted(b)&&li2.hasNext()) {
+                int index=li1.previousIndex();
+
+                ListIterator<Square> tempLi = route.listIterator(index);
+                Square temp = tempLi.next();
+                b=li2.next();
+                while (!temp.isTargeted(b) && li2.hasNext()) {
+                    route.remove()
+
+                }
+            }
+
+
+            if(a!=b){
+                patch(a,b);
+            }
+
+
+
+
+
+        }
+
+
+    }*/
     public void fastestRouteFirst(int x,int y){
         ArrayList<Integer> x_values=new ArrayList<>();
         ArrayList<Integer> y_values=new ArrayList<>();
@@ -391,6 +518,7 @@ public class GameGraph {
 
         int maxDist = Integer.MIN_VALUE;
         Square farOne=theSquare;
+
         BinaryMinHeap<Square> minHeap = new BinaryMinHeap<>();
 
 

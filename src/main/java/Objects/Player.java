@@ -81,6 +81,8 @@ public class Player extends GameObject {
 
     //etrafta degisen noktalara bakacak
     public ArrayList<Integer> look(int dir){
+        graf.fastestRouteFirst(this.getX(),this.getY());
+        gameplan= graf.getRoute();
         ArrayList<Integer> messages=new ArrayList<>();
         int x=this.getX();
         int y = this.getY();
