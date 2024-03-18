@@ -8,6 +8,7 @@ import java.util.*;
 
 
 public class Player extends GameObject {
+    private ArrayList<GameObject> explored=new ArrayList<>();
     private String gameplan;
     private int ID;
     GameGraph graf;
@@ -79,9 +80,20 @@ public class Player extends GameObject {
     }
 
     //etrafta degisen noktalara bakacak
-    public void look(){
+    public ArrayList<String> look(int dir){
+        ArrayList<String> messages=new ArrayList<>();
+        int x=this.getX();
+        int y = this.getY();
+        for (int i = -3; i < 4; i++) {
+            if(!explored.contains(vision[x+dir/2*3+i*dir%2][y+dir%2*3+i*dir/2])){
+                explored.add(vision[x+dir/2*3+i*dir%2][y+dir%2*3+i*dir/2]);
+
+            }
+        }
         if(gameplan.length()>0)
             gameplan=gameplan.substring(1);
+
+        return messages;
     }
 
 

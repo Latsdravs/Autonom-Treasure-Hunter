@@ -438,13 +438,13 @@ public class Map {
         mapValue[new_x][new_y]=2;
         mapSis[old_x][old_y]=null;
         mapSis[new_x][new_y]=P;
-
+        //2 R
 
         crossImage(old_x,old_y,new_x,new_y);
         crossImageMini(old_x,old_y,new_x,new_y);
 
         unSis(dir,new_x,new_y);
-        P.look();
+        P.look(dir);
         if(dir==0)finish=true;
         ArrayList<String> message = new ArrayList<>();
 
