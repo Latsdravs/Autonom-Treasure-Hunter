@@ -492,6 +492,26 @@ public class Map {
                 mapImage[x][y]=P.getImage(0);
                 mapAdress[x][y]=P;
                 break;
+            case 543:
+                Random random = new Random();
+                int rand=random.nextInt(4);
+                switch (rand){
+                    case 0:
+                        for (int i = 0; i < 2; i++) {
+                            for (int j = 0; j < 2; j++) {
+
+                            }
+                        }
+                        break;
+                    case 1:
+                        break;
+                    case 2:
+                        break;
+                    case 3:
+                        break;
+                }
+
+                break;
             case 4:
                 if(x < this.grid_x/2) {
                     SummerMountain temp =new SummerMountain(x, y);
@@ -1240,9 +1260,12 @@ public class Map {
 
             if(checkSpace(map,temp_x,temp_x+roomSize_x,temp_y,temp_y+roomSize_y,empties)){
                 fillMatrix(map,temp_x,temp_x+roomSize_x,temp_y,temp_y+roomSize_y,ID);
-                int chest_x = random.nextInt(temp_x,temp_x+roomSize_x);
-                int chest_y = random.nextInt(temp_y,temp_y+roomSize_y);
+                int chest_x = random.nextInt(temp_x,temp_x+roomSize_x-1);
+                int chest_y = random.nextInt(temp_y,temp_y+roomSize_y-1);
                 map[chest_x][chest_y]=ID+1;
+                map[chest_x][chest_y+1]=ID+1;
+                map[chest_x+1][chest_y]=ID+1;
+                map[chest_x+1][chest_y+1]=ID+1;
 
                 rooms.add(new roomKey(temp_x+roomSize_x/2,temp_y+roomSize_y/2));
 

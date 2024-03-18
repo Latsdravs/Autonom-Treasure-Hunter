@@ -250,9 +250,39 @@ public class GameGraph {
 
     }
     public void emptySpace(int start_x,int start_y,int end_x,int end_y){
+        ArrayList<Square> goners=new ArrayList<>();
+        for (int i = start_x; i < end_x; i++) {
+            for (int j = start_y; j < end_y; j++) {
+                if(grid[i][j]!=null)goners.add(grid[i][j]);
+            }
+        }
+        flatRemove(goners);
 
     }
-    public void obstacleWall(int start_x,int start_y,int end_x,int end_y){}
+    public void obstacleWall(int start_x,int start_y,int end_x,int end_y){
+        ArrayList<Square> comers=new ArrayList<>();
+        for (int i = start_x; i < end_x; i++) {
+            Square temp = new Square(i,start_y);
+            temp.obstacle=true;
+            comers.add(temp);
+        }
+        for (int i = start_y; i < end_y; i++) {
+            Square temp = new Square(end_x,i);
+            temp.obstacle=true;
+            comers.add(temp);
+        }
+        for (int i = end_x; i > start_x; i--) {
+            Square temp = new Square(i,end_y);
+            temp.obstacle=true;
+            comers.add(temp);
+        }
+        for (int i = end_y; i > start_y; i--) {
+            Square temp = new Square(start_x,i);
+            temp.obstacle=true;
+            comers.add(temp);
+        }
+        flatAdd(comers);
+    }
     public int flatAddFirst(ArrayList<Square> squares){
         for (Square s:
              squares) {
@@ -318,6 +348,9 @@ public class GameGraph {
 
         }
         squareCount--;
+
+    }
+    public void updateRoute(){
 
     }
     public void fastestRouteFirst(int x,int y){
