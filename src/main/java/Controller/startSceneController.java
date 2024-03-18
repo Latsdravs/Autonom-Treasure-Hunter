@@ -102,6 +102,7 @@ public class startSceneController {
             stage.setScene(theMap.getMiniMap());
         }
     }
+    private int step = 0;
 
     @FXML
     private void start() {
@@ -111,6 +112,8 @@ public class startSceneController {
 
             AnchorPane anchorPane = (AnchorPane) theMap.getMap().getRoot();
             ScrollPane scrollPane = (ScrollPane) erisimYontemi(anchorPane);
+
+
 
             VBox root = new VBox(10);
 
@@ -231,7 +234,12 @@ public class startSceneController {
     private void callMe(){
 
         ArrayList<String> objects = theMap.update();
-        if(theMap.finish)timeline.stop();
+        step++;
+        System.out.println(step+". adim Atildi.");
+        if(theMap.finish){
+            System.out.println(step+" adim sonucunda harita tamamlandi.");
+            timeline.stop();
+        }
 
         for (String key : objects) {
             if(key!=null) {
