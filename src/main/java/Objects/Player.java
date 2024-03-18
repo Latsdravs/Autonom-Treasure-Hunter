@@ -80,13 +80,14 @@ public class Player extends GameObject {
     }
 
     //etrafta degisen noktalara bakacak
-    public ArrayList<String> look(int dir){
-        ArrayList<String> messages=new ArrayList<>();
+    public ArrayList<Integer> look(int dir){
+        ArrayList<Integer> messages=new ArrayList<>();
         int x=this.getX();
         int y = this.getY();
         for (int i = -3; i < 4; i++) {
             GameObject temp = vision[x+dir/2*3+i*dir%2][y+dir%2*3+i*dir/2];
             if(!explored.contains(temp)){
+                messages.add(i);
                 explored.add(temp);
                 graf.emptySpace(temp.getX(),temp.getY(),temp.getX()+temp.size,temp.getY()+temp.size);
                 graf.obstacleWall(temp.getX(),temp.getY(),temp.getX()+temp.size,temp.getY()+temp.size);

@@ -444,9 +444,14 @@ public class Map {
         crossImageMini(old_x,old_y,new_x,new_y);
 
         unSis(dir,new_x,new_y);
-        P.look(dir);
+        ArrayList<Integer> indexes = P.look(dir);
+        for (Integer i:
+             indexes) {
+            int temp = mapValue[new_x+dir/2*3+i*dir%2][new_y+dir%2*3+i*dir/2];
+
+        }
         if(dir==0)finish=true;
-        ArrayList<String> message = new ArrayList<>();
+        ArrayList<String> message;
 
 
 
