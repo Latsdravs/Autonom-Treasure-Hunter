@@ -101,7 +101,7 @@ public class Map {
         }
         System.out.println("3");
 
-        /*
+
         int[] empties = new int[]{0,70153,8};
 
         NoiseFill(grid_x,grid_y,62,mapValue);
@@ -113,7 +113,7 @@ public class Map {
             int Count = grid_x * grid_y / 512 / i + 20 / i;
             executeStoneAge(grid_x,grid_y,mapValue,empties,P_D, Count, Count);
         }
-        */
+
 
 
 
@@ -421,11 +421,78 @@ public class Map {
         mapValue[new_x][new_y]=2;
         mapSis[old_x][old_y]=null;
         mapSis[new_x][new_y]=P;
+        //2 R
+
         crossImage(old_x,old_y,new_x,new_y);
         crossImageMini(old_x,old_y,new_x,new_y);
 
         unSis(dir,new_x,new_y);
+        ArrayList<Integer> indexes = P.look(dir);
+        ArrayList<String> messages = new ArrayList<String>();
+        for (Integer i:
+                indexes) {
+            int temp = mapValue[new_x + dir / 2 * 3 + i * dir % 2][new_y + dir % 2 * 3 + i * dir / 2];
+            String message = "";
+            switch (temp) {
+                case 4:
+                    message += "Dag";
+                    break;//mountain
+                case 542:
+                    message += "Goldens";
+                    break;//goldens
+                case 543:
+                    switch (((Chest) mapAdress[new_x + dir / 2 * 3 + i * dir % 2][new_y + dir % 2 * 3 + i * dir / 2]).type) {
+                        case 0:
+                            message += "Bakir Sandik";
+                            break;
+                        case 1:
+                            message += "Gumus Sandik";
+                            break;
+                        case 2:
+                            message += "Altin Sandik";
+                            break;
+                        case 3:
+                            message += "Zumrut Sandik";
+                            break;
+                    }
+                    break;//Chest
+                case 70153:
+                    message += "Noise";
+                    break;//Noise
+                case 5:
+                    message += "Agac";
+                    break;//tree
+                case 6:
+                    message += "Kaya";
+                    break;//rock
+                case 7:
+                    message += "Duvar";
+                    break;//wall
+                case 8:
+                    message += "Duvar";
+                    break;//wall perimeter
+                case 9:
+                    message += "Ari";
+                    break;//bee
+                case 10:
+                    message += "Kus";
+                    break;//bird
+                case 11:
+                    message += "Duvar";
+                    break;//WallV
+                case 12:
+                    message += "Sis";
+                    break;//Sis
+                case 13:
+                    message += "Agac";
+                    break;//Tree2
+                case 14:
+                    message += "Kaya";
+                    break;//Rock2
+            }
+            messages.addFirst(message);
 
+        }
 
     }
     public ArrayList<String> update(){

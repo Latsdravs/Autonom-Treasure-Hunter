@@ -162,12 +162,16 @@ public class startSceneController {
                     if(fullscreen) theStage.setFullScreen(true);
                 }else if(event.getCode() == KeyCode.W){
                     theMap.update(-1);
+                    callMe();
                 }else if(event.getCode() == KeyCode.A){
                     theMap.update(-2);
+                    callMe();
                 }else if(event.getCode() == KeyCode.S){
                     theMap.update(1);
+                    callMe();
                 }else if(event.getCode() == KeyCode.D){
                     theMap.update(2);
+                    callMe();
                 } else if (event.getCode()==KeyCode.SPACE) {
 
                 }
@@ -185,14 +189,17 @@ public class startSceneController {
 
                 } else if (event.getCode()==KeyCode.U) {
                     theMap.update(-1);
-
+                    callMe();
 
                 } else if (event.getCode()==KeyCode.J) {
                     theMap.update(1);
+                    callMe();
                 } else if (event.getCode()==KeyCode.H) {
                     theMap.update(-2);
+                    callMe();
                 } else if (event.getCode()==KeyCode.K) {
                     theMap.update(2);
+                    callMe();
                 }
             });
 
@@ -208,14 +215,14 @@ public class startSceneController {
             AnchorPane.setTopAnchor(messagesContainer, 10.0);
             AnchorPane.setLeftAnchor(messagesContainer, 10.0);
             timeline = new Timeline(
-                    new KeyFrame(Duration.seconds(0.009), e -> callMe())
+                    new KeyFrame(Duration.seconds(0.05), e -> callMe())
 
             );
 
             // If you want to repeat indefinitely:
             timeline.setCycleCount(Animation.INDEFINITE);
 
-            timeline.play();
+           // timeline.play();
 
 
 

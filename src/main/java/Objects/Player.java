@@ -42,10 +42,10 @@ public class Player extends GameObject {
         this.vision=vision;
         this.grid_x=vision.length;
         this.grid_y=vision[0].length;
-        graf = new GameGraph(grid_x,grid_y);
-        graf.fastestRouteFirst(this.getX(),this.getY());
-        gameplan= graf.getRoute();
-        System.out.println("length:"+gameplan.length());
+
+
+
+
 
     }
 
@@ -81,8 +81,8 @@ public class Player extends GameObject {
 
     //etrafta degisen noktalara bakacak
     public ArrayList<Integer> look(int dir){
-        graf.fastestRouteFirst(this.getX(),this.getY());
-        gameplan= graf.getRoute();
+
+
         ArrayList<Integer> messages=new ArrayList<>();
         int x=this.getX();
         int y = this.getY();
@@ -91,13 +91,12 @@ public class Player extends GameObject {
             if(!explored.contains(temp)){
                 messages.add(i);
                 explored.add(temp);
-                graf.emptySpace(temp.getX(),temp.getY(),temp.getX()+temp.size,temp.getY()+temp.size);
-                graf.obstacleWall(temp.getX(),temp.getY(),temp.getX()+temp.size,temp.getY()+temp.size);
+
 
             }
         }
-        if(gameplan.length()>0)
-            gameplan=gameplan.substring(1);
+
+
 
         return messages;
     }
